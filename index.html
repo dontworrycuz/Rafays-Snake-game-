@@ -1,128 +1,68 @@
-import pygame
-import time
-import random
-
-pygame.init()
-
-# Colors
-white = (255, 255, 255)
-yellow = (255, 255, 102)
-black = (0, 0, 0)
-red = (213, 50, 80)
-green = (0, 255, 0)
-blue = (50, 153, 213)
-
-# Display settings
-dis_width = 600
-dis_height = 400
-dis = pygame.display.set_mode((dis_width, dis_height))
-pygame.display.set_caption('Snake Game by ChatGPT')
-
-clock = pygame.time.Clock()
-snake_block = 10
-snake_speed = 15
-
-font_style = pygame.font.SysFont("bahnschrift", 25)
-score_font = pygame.font.SysFont("comicsansms", 35)
+def print_board(board):
+    print("\n")
+    print(f" {board[0]} | {board[1]} | {board[2]} ")
+    print("---|---|---")
+    print(f" {board[3]} | {board[4]} | {board[5]} ")
+    print("---|---|---")
+    print(f" {board[6]} | {board[7]} | {board[8]} ")
+    print("\n")
 
 
-def your_score(score):
-    value = score_font.render("Score: " + str(score), True, yellow)
-    dis.blit(value, [0, 0])
+def check_winner(board, player):
+    win_conditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
+        [0, 4, 8], [2, 4, 6]              # diagonals
+    ]
+    for condition in win_conditions:
+        if all(board[i] == player for i in condition):
+            return True
+    return False
 
 
-def our_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(dis, black, [x[0], x[1], snake_block, snake_block])
+def check_draw(board):
+    return all(space in ['X', 'O'] for space in board)
 
 
-def message(msg, color):
-    mesg = font_style.render(msg, True, color)
-    dis.blit(mesg, [dis_width / 6, dis_height / 3])
+def player_move(board, player):
+    while True:
+        try:
+            move = int(input(f"Player {player}, enter your move (1-9): "))
+            if move < 1 or move > 9:
+                print("Invalid input! Choose a number between 1 and 9.")
+                continue
+            if board[move - 1] in ['X', 'O']:
+                print("That spot is already taken! Choose another.")
+                continue
+            board[move - 1] = player
+            break
+        except ValueError:
+            print("Invalid input! Please enter a number.")
 
 
-def gameLoop():
+def tic_tac_toe():
+    board = [str(i) for i in range(1, 10)]
+    current_player = 'X'
     game_over = False
-    game_close = False
 
-    x1 = dis_width / 2
-    y1 = dis_height / 2
-
-    x1_change = 0
-    y1_change = 0
-
-    snake_List = []
-    Length_of_snake = 1
-
-    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+    print("Welcome to Tic Tac Toe!")
+    print_board(board)
 
     while not game_over:
+        player_move(board, current_player)
+        print_board(board)
 
-        while game_close:
-            dis.fill(blue)
-            message("You Lost! Press C-Play Again or Q-Quit", red)
-            your_score(Length_of_snake - 1)
-            pygame.display.update()
+        if check_winner(board, current_player):
+            print(f"Congratulations! Player {current_player} wins!")
+            game_over = True
+        elif check_draw(board):
+            print("It's a draw!")
+            game_over = True
+        else:
+            current_player = 'O' if current_player == 'X' else 'X'
 
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_c:
-                        gameLoop()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x1_change = -snake_block
-                    y1_change = 0
-                elif event.key == pygame.K_RIGHT:
-                    x1_change = snake_block
-                    y1_change = 0
-                elif event.key == pygame.K_UP:
-                    y1_change = -snake_block
-                    x1_change = 0
-                elif event.key == pygame.K_DOWN:
-                    y1_change = snake_block
-                    x1_change = 0
-
-        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
-            game_close = True
-
-        x1 += x1_change
-        y1 += y1_change
-        dis.fill(blue)
-        pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
-        snake_Head = []
-        snake_Head.append(x1)
-        snake_Head.append(y1)
-        snake_List.append(snake_Head)
-
-        if len(snake_List) > Length_of_snake:
-            del snake_List[0]
-
-        for x in snake_List[:-1]:
-            if x == snake_Head:
-                game_close = True
-
-        our_snake(snake_block, snake_List)
-        your_score(Length_of_snake - 1)
-
-        pygame.display.update()
-
-        if x1 == foodx and y1 == foody:
-            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-            Length_of_snake += 1
-
-        clock.tick(snake_speed)
-
-    pygame.quit()
-    quit()
+    print("Game over. Thanks for playing!")
 
 
-gameLoop()
+if __name__ == "__main__":
+    tic_tac_toe()
