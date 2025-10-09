@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Futuristic Snake Game</title>
-<!-- Use a modern, clean font -->
+<!-- Use a modern, sleek font -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
 <style>
   body {
@@ -19,7 +19,7 @@
   }
 
   #canvas {
-    border: 2px solid #0ff;
+    border: 4px solid #0ff;
     box-shadow: 0 0 20px #0ff, inset 0 0 15px #0ff;
     background-color: #000;
   }
@@ -38,7 +38,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.8);
     padding: 30px;
     border-radius: 15px;
     border: 2px solid #0ff;
@@ -90,13 +90,13 @@ const restartBtn = document.getElementById('restartBtn');
 
 const gridSize = 20;
 let snake = [{x: 350, y: 350}]; // start in the middle
-let direction = {x: 0, y: 0}; // start stationary
+let direction = {x: 0, y: 0}; // initial stationary
 let food = {x: 0, y: 0};
 let score = 0;
 let gameInterval;
 let isGameRunning = false;
 
-// Generate food in a random position, avoiding snake
+// Generate food avoiding snake
 function generateFood() {
   do {
     food.x = Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize;
@@ -104,29 +104,30 @@ function generateFood() {
   } while (snake.some(s => s.x === food.x && s.y === food.y));
 }
 
-// Draw everything with neon/glow effect
+// Draw everything with neon effects
 function draw() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw food
+  // Draw food with glow
   ctx.shadowBlur = 20;
   ctx.shadowColor = '#0ff';
   ctx.fillStyle = '#0ff';
   ctx.fillRect(food.x, food.y, gridSize, gridSize);
 
-  // Draw snake
+  // Draw snake with glow
   ctx.shadowBlur = 20;
   ctx.shadowColor = '#0ff';
   ctx.fillStyle = '#0ff';
-  for (let part of snake) {
-    ctx.fillRect(part.x, part.y, gridSize, gridSize);
+  for (let segment of snake) {
+    ctx.beginPath();
+    ctx.arc(segment.x + gridSize/2, segment.y + gridSize/2, gridSize/2, 0, Math.PI * 2);
+    ctx.fill();
   }
-
   ctx.shadowBlur = 0; // reset shadow
 }
 
-// Update snake position
+// Update snake position and check collisions
 function update() {
   if (direction.x === 0 && direction.y === 0) return; // not moving yet
 
@@ -153,13 +154,13 @@ function update() {
   // Add new head
   snake.unshift(newHead);
 
-  // Check if food eaten
+  // Eat food
   if (newHead.x === food.x && newHead.y === food.y) {
     score += 10;
     scoreText.innerText = 'Score: ' + score;
     generateFood();
   } else {
-    snake.pop();
+    snake.pop(); // remove tail
   }
 }
 
@@ -169,7 +170,7 @@ function game() {
   draw();
 }
 
-// Handle keyboard input for direction
+// Change direction with arrow keys
 function changeDirection(e) {
   const key = e.key;
   if (key === 'ArrowUp' && direction.y !== 1) {
@@ -183,7 +184,7 @@ function changeDirection(e) {
   }
 }
 
-// Start or restart game
+// Start/restart game
 function startGame() {
   snake = [{x: 350, y: 350}];
   direction = {x: 0, y: 0}; // stationary initially
