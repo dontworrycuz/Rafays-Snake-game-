@@ -2,54 +2,78 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Futuristic Snake Game</title>
 <style>
   body {
     margin: 0;
-    background-color: #000;
+    background: radial-gradient(ellipse at center, #0f0f0f 0%, #000000 100%);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: Arial, sans-serif;
+    font-family: 'Orbitron', sans-serif;
+    overflow: hidden;
   }
   canvas {
-    border: 2px solid #fff;
+    border: 4px solid #0ff;
+    box-shadow: 0 0 20px #0ff, inset 0 0 10px #0ff;
     background-color: #000;
   }
   #score {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    color: #fff;
-    font-size: 20px;
+    top: 20px;
+    left: 20px;
+    color: #0ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    text-shadow: 0 0 10px #0ff;
   }
   #gameOver {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #f00;
-    font-size: 24px;
+    color: #0ff;
+    background: rgba(0,0,0,0.7);
+    border: 2px solid #0ff;
+    padding: 30px;
+    border-radius: 15px;
     display: none;
     text-align: center;
+    font-family: 'Orbitron', sans-serif;
+  }
+  #gameOver h1 {
+    margin: 0 0 10px 0;
+    font-size: 36px;
   }
   #restartBtn {
-    margin-top: 10px;
-    padding: 8px 16px;
-    font-size: 16px;
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background: #0ff;
+    color: #000;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
+    box-shadow: 0 0 10px #0ff, inset 0 0 10px #0ff;
+    transition: background 0.3s, transform 0.2s;
+  }
+  #restartBtn:hover {
+    background: #0cc;
+    transform: scale(1.05);
   }
 </style>
+<!-- Load Google Orbitron font for a techy look -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
 </head>
 <body>
 <div id="score">Score: 0</div>
 <div id="gameOver">
-  <div>GAME OVER!</div>
+  <h1>GAME OVER</h1>
   <button id="restartBtn">Play Again</button>
 </div>
-<canvas id="gameCanvas" width="600" height="600"></canvas>
+<canvas id="gameCanvas" width="700" height="700"></canvas>
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -58,8 +82,8 @@ const gameOverDiv = document.getElementById('gameOver');
 const restartBtn = document.getElementById('restartBtn');
 
 const boxSize = 20;
-let snake = [{x: 300, y: 300}]; // start in the middle
-let direction = {x: 0, y: 0}; // start stationary
+let snake = [{x: 350, y: 350}];
+let direction = {x: 0, y: 0};
 let food = {x: 0, y: 0};
 let score = 0;
 let gameInterval;
@@ -68,38 +92,48 @@ let gameRunning = false;
 function generateFood() {
   food.x = Math.floor(Math.random() * (canvas.width / boxSize)) * boxSize;
   food.y = Math.floor(Math.random() * (canvas.height / boxSize)) * boxSize;
-  // Ensure food doesn't spawn on the snake
+  // Regenerate if overlaps with snake
   if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
     generateFood();
   }
 }
 
+function glowColor(color) {
+  return `0 0 20px ${color}, inset 0 0 10px ${color}`;
+}
+
 function draw() {
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Draw food
-  ctx.fillStyle = 'red';
+  
+  // Draw food with glow
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = '#0ff';
+  ctx.fillStyle = '#0ff';
   ctx.fillRect(food.x, food.y, boxSize, boxSize);
+  ctx.shadowBlur = 0; // Reset shadow
 
-  // Draw snake
-  ctx.fillStyle = 'lime';
+  // Draw snake with glowing effect
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = '#0ff';
+  ctx.fillStyle = '#0ff';
   for (let segment of snake) {
     ctx.fillRect(segment.x, segment.y, boxSize, boxSize);
   }
+  ctx.shadowBlur = 0; // Reset
 }
 
 function update() {
   if (direction.x === 0 && direction.y === 0) {
-    // Snake is stationary at start
-    return;
+    return; // Not moving yet
   }
+
   const newHead = {
     x: snake[0].x + direction.x * boxSize,
     y: snake[0].y + direction.y * boxSize
   };
 
-  // Check for wall collisions
+  // Wall collision
   if (
     newHead.x < 0 || newHead.x >= canvas.width ||
     newHead.y < 0 || newHead.y >= canvas.height
@@ -108,22 +142,20 @@ function update() {
     return;
   }
 
-  // Check for self-collision
+  // Self collision
   if (snake.some(segment => segment.x === newHead.x && segment.y === newHead.y)) {
     endGame();
     return;
   }
 
-  // Add new head
   snake.unshift(newHead);
 
-  // Check if food eaten
+  // Eating food
   if (newHead.x === food.x && newHead.y === food.y) {
     score += 10;
     scoreDisplay.innerText = "Score: " + score;
     generateFood();
   } else {
-    // Remove tail
     snake.pop();
   }
 }
@@ -135,20 +167,20 @@ function gameLoop() {
 
 function changeDirection(e) {
   const key = e.key;
-  if (key === 'ArrowUp' && direction.y !== 1) {
+  if (key === 'ArrowUp' && !(direction.y === 1)) {
     direction = {x: 0, y: -1};
-  } else if (key === 'ArrowDown' && direction.y !== -1) {
+  } else if (key === 'ArrowDown' && !(direction.y === -1)) {
     direction = {x: 0, y: 1};
-  } else if (key === 'ArrowLeft' && direction.x !== 1) {
+  } else if (key === 'ArrowLeft' && !(direction.x === 1)) {
     direction = {x: -1, y: 0};
-  } else if (key === 'ArrowRight' && direction.x !== -1) {
+  } else if (key === 'ArrowRight' && !(direction.x === -1)) {
     direction = {x: 1, y: 0};
   }
 }
 
 function startGame() {
-  snake = [{x: 300, y: 300}];
-  direction = {x: 0, y: 0}; // stationary initially
+  snake = [{x: 350, y: 350}];
+  direction = {x: 0, y: 0}; // start stationary
   score = 0;
   scoreDisplay.innerText = "Score: 0";
   generateFood();
@@ -158,18 +190,14 @@ function startGame() {
   gameInterval = setInterval(gameLoop, 150);
 }
 
-// Start moving automatically after a key press
+// Start moving automatically after first key press
 document.addEventListener('keydown', (e) => {
   if (direction.x === 0 && direction.y === 0) {
-    // start moving in the last pressed direction
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      changeDirection(e);
-    }
+    changeDirection(e);
   } else {
     changeDirection(e);
   }
 });
-
 restartBtn.addEventListener('click', startGame);
 
 function endGame() {
@@ -178,7 +206,7 @@ function endGame() {
   document.getElementById('gameOver').style.display = 'block';
 }
 
-// Initialize the game
+// Initialize game
 startGame();
 </script>
 </body>
