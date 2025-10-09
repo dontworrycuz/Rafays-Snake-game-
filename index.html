@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Futuristic Snake Game</title>
-<!-- Use a modern, sleek font -->
+<!-- Load a sleek font -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
 <style>
   body {
@@ -90,11 +90,10 @@ const restartBtn = document.getElementById('restartBtn');
 
 const gridSize = 20;
 let snake = [{x: 350, y: 350}]; // start in the middle
-let direction = {x: 0, y: 0}; // initial stationary
+let direction = {x: 0, y: 0}; // stationary initially
 let food = {x: 0, y: 0};
 let score = 0;
 let gameInterval;
-let isGameRunning = false;
 
 // Generate food avoiding snake
 function generateFood() {
@@ -104,7 +103,7 @@ function generateFood() {
   } while (snake.some(s => s.x === food.x && s.y === food.y));
 }
 
-// Draw everything with neon effects
+// Draw everything with neon glow effects
 function draw() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -113,9 +112,11 @@ function draw() {
   ctx.shadowBlur = 20;
   ctx.shadowColor = '#0ff';
   ctx.fillStyle = '#0ff';
-  ctx.fillRect(food.x, food.y, gridSize, gridSize);
+  ctx.beginPath();
+  ctx.arc(food.x + gridSize/2, food.y + gridSize/2, gridSize/2, 0, Math.PI * 2);
+  ctx.fill();
 
-  // Draw snake with glow
+  // Draw snake as circles with glow
   ctx.shadowBlur = 20;
   ctx.shadowColor = '#0ff';
   ctx.fillStyle = '#0ff';
@@ -124,10 +125,10 @@ function draw() {
     ctx.arc(segment.x + gridSize/2, segment.y + gridSize/2, gridSize/2, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.shadowBlur = 0; // reset shadow
+  ctx.shadowBlur = 0;
 }
 
-// Update snake position and check collisions
+// Update snake position, check collisions
 function update() {
   if (direction.x === 0 && direction.y === 0) return; // not moving yet
 
@@ -136,7 +137,7 @@ function update() {
     y: snake[0].y + direction.y * gridSize
   };
 
-  // Wall collision
+  // Check wall collision
   if (
     newHead.x < 0 || newHead.x >= canvas.width ||
     newHead.y < 0 || newHead.y >= canvas.height
@@ -145,7 +146,7 @@ function update() {
     return;
   }
 
-  // Self collision
+  // Check self collision
   if (snake.some(s => s.x === newHead.x && s.y === newHead.y)) {
     endGame();
     return;
@@ -154,7 +155,7 @@ function update() {
   // Add new head
   snake.unshift(newHead);
 
-  // Eat food
+  // Check if food is eaten
   if (newHead.x === food.x && newHead.y === food.y) {
     score += 10;
     scoreText.innerText = 'Score: ' + score;
@@ -170,21 +171,21 @@ function game() {
   draw();
 }
 
-// Change direction with arrow keys
+// Change direction based on arrow keys
 function changeDirection(e) {
   const key = e.key;
-  if (key === 'ArrowUp' && direction.y !== 1) {
+  if (key === 'ArrowUp' && !(direction.y === 1)) {
     direction = {x: 0, y: -1};
-  } else if (key === 'ArrowDown' && direction.y !== -1) {
+  } else if (key === 'ArrowDown' && !(direction.y === -1)) {
     direction = {x: 0, y: 1};
-  } else if (key === 'ArrowLeft' && direction.x !== 1) {
+  } else if (key === 'ArrowLeft' && !(direction.x === 1)) {
     direction = {x: -1, y: 0};
-  } else if (key === 'ArrowRight' && direction.x !== -1) {
+  } else if (key === 'ArrowRight' && !(direction.x === -1)) {
     direction = {x: 1, y: 0};
   }
 }
 
-// Start/restart game
+// Start or restart game
 function startGame() {
   snake = [{x: 350, y: 350}];
   direction = {x: 0, y: 0}; // stationary initially
@@ -193,7 +194,6 @@ function startGame() {
   generateFood();
   document.getElementById('gameOver').style.display = 'none';
   if (gameInterval) clearInterval(gameInterval);
-  isGameRunning = true;
   gameInterval = setInterval(() => {
     if (direction.x !== 0 || direction.y !== 0) {
       game();
@@ -201,7 +201,7 @@ function startGame() {
   }, 150);
 }
 
-// Detect first key press to start moving
+// Detect first arrow key press to start movement
 document.addEventListener('keydown', (e) => {
   if (direction.x === 0 && direction.y === 0) {
     changeDirection(e);
@@ -210,14 +210,14 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-document.getElementById('restartBtn').addEventListener('click', startGame);
+restartBtn.addEventListener('click', startGame);
 
 function endGame() {
   clearInterval(gameInterval);
   document.getElementById('gameOver').style.display = 'block';
 }
 
-// Initialize game
+// Initialize
 startGame();
 
 </script>
