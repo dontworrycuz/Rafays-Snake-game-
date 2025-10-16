@@ -3,52 +3,62 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Map Selection</title>
+<title>Snake Game with Futuristic Menu</title>
 <style>
   body {
     margin: 0;
-    background-color: #222;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
-    font-family: Arial, sans-serif;
-  }
-
-  /* Welcome overlay styles */
-  #welcomeScreen {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(17, 17, 17, 0.9);
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
-    padding: 20px;
   }
 
-  #welcomeMessage {
-    color: #fff;
-    font-size: 2em;
-    margin-bottom: 20px;
+  /* Main menu styles */
+  #menu {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px 60px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
     text-align: center;
+    color: #fff;
+    width: 80%;
+    max-width: 400px;
   }
 
-  /* Map selection buttons */
+  #menu h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  /* Buttons styling */
   .map-button {
-    padding: 15px 30px;
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin: 15px 0;
     font-size: 1.2em;
-    margin: 10px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
   }
 
   .map-button:hover {
-    background-color: #218838;
+    background: linear-gradient(135deg, #2575fc, #6a11cb);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+  }
+
+  /* Hide the menu on start */
+  #welcomeScreen {
+    display: flex;
   }
 
   /* Game container styles */
@@ -85,15 +95,18 @@
 </head>
 <body>
 
-<!-- Welcome Screen with Map Selection -->
+<!-- Main menu with futuristic style -->
 <div id="welcomeScreen">
-  <div id="welcomeMessage">Welcome to Rafay's Snake Game!</div>
-  <div>Select a Map:</div>
-  <button class="map-button" data-speed="100">Default Map</button>
-  <button class="map-button" data-speed="50">Super Fast Map</button>
+  <div id="menu">
+    <h1>Rafay's Snake Game</h1>
+    <div style="margin-top:20px;">Select a Map:</div>
+    <button class="map-button" data-speed="100">Default Map</button>
+    <button class="map-button" data-speed="50">Super Fast Map</button>
+    <!-- You can add more options here -->
+  </div>
 </div>
 
-<!-- Game Container -->
+<!-- Game container -->
 <div id="gameContainer">
   <div id="score">Score: 0</div>
   <canvas id="gameCanvas" width="600" height="600"></canvas>
@@ -147,14 +160,13 @@
   }
 
   function startGame() {
-    // Initialize game variables
     snake = [{x: 10, y: 10}];
-    direction = {x: 1, y: 0}; // start moving right
+    direction = {x: 1, y: 0};
     food = spawnFood();
     score = 0;
     scoreDiv.innerText = 'Score: 0';
     gameOver = false;
-    // Start game loop
+    clearInterval(gameInterval);
     gameInterval = setInterval(update, gameSpeed);
   }
 
@@ -166,14 +178,8 @@
     }
 
     const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
-
-    // Wall collision
-    if (head.x < 0 || head.x >= (canvas.width / 20) || head.y < 0 || head.y >= (canvas.height / 20)) {
-      gameOver = true;
-    }
-
-    // Self collision
-    if (snake.some(s => s.x === head.x && s.y === head.y)) {
+    // Check collisions
+    if (head.x < 0 || head.x >= (canvas.width / 20) || head.y < 0 || head.y >= (canvas.height / 20) || snake.some(s => s.x === head.x && s.y === head.y)) {
       gameOver = true;
     }
 
@@ -184,7 +190,6 @@
     }
 
     snake.unshift(head);
-
     if (head.x === food.x && head.y === food.y) {
       score++;
       scoreDiv.innerText = 'Score: ' + score;
@@ -199,12 +204,8 @@
   function draw() {
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw food
     ctx.fillStyle = '#f00';
     ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
-
-    // Draw snake
     for (let i = 0; i < snake.length; i++) {
       const s = snake[i];
       ctx.save();
