@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game</title>
+<title>Snake Game with Loading Screen</title>
 <style>
   body {
     margin: 0;
@@ -13,6 +13,22 @@
     align-items: center;
     height: 100vh;
   }
+  /* Loading overlay styles */
+  #loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(34,34,34,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    color: #fff;
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+  }
   #gameContainer {
     position: relative;
     width: 600px;
@@ -20,6 +36,7 @@
     background-color: #111;
     border: 4px solid #555;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    display: none; /* Hidden initially, will show after loading */
   }
   #score {
     position: absolute;
@@ -42,11 +59,27 @@
 </style>
 </head>
 <body>
+
+<!-- Loading Screen -->
+<div id="loadingOverlay">Loading...</div>
+
+<!-- Main Game Container -->
 <div id="gameContainer">
   <div id="score">Score: 0</div>
   <canvas id="gameCanvas" width="600" height="600"></canvas>
 </div>
+
 <script>
+  // Wait a moment to simulate loading, then hide overlay and show game
+  window.onload = () => {
+    // Simulate a small delay for loading
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'block';
+      startGame();
+    }, 500); // 500ms delay for loading effect
+  };
+
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreDiv = document.getElementById('score');
@@ -55,13 +88,13 @@
   const tileCount = canvas.width / gridSize;
 
   let snake = [{x: 10, y: 10}];
-  let direction = {x: 1, y: 0}; // initial direction to the right
+  let direction = {x: 1, y: 0}; // snake starts moving right
   let food = spawnFood();
   let score = 0;
   let gameOver = false;
 
   document.addEventListener('keydown', changeDirection);
-  let gameInterval = setInterval(update, 100);
+  let gameInterval;
 
   function spawnFood() {
     let newFood;
@@ -87,6 +120,10 @@
     }
   }
 
+  function startGame() {
+    gameInterval = setInterval(update, 100);
+  }
+
   function update() {
     if (gameOver) {
       alert('Game Over! Your score: ' + score);
@@ -94,26 +131,26 @@
       return;
     }
 
-    // Move snake
     const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
 
-    // Check wall collision
+    // Wall collision
     if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
       gameOver = true;
     }
 
-    // Check self collision
+    // Self collision
     if (snake.some(s => s.x === head.x && s.y === head.y)) {
       gameOver = true;
     }
 
     if (gameOver) {
+      alert('Game Over! Your score: ' + score);
+      clearInterval(gameInterval);
       return;
     }
 
     snake.unshift(head);
 
-    // Check food
     if (head.x === food.x && head.y === food.y) {
       score++;
       scoreDiv.innerText = 'Score: ' + score;
@@ -151,7 +188,7 @@
     }
   }
 
-  // Polyfill for roundRect if needed
+  // Polyfill for rounded rect
   if (!CanvasRenderingContext2D.prototype.roundRect) {
     CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
       if (w < 2 * r) r = w / 2;
@@ -166,11 +203,6 @@
       return this;
     }
   }
-
-  // Start game with initial movement to the right
-  direction = {x: 1, y: 0};
-  startGame();
-
 </script>
 </body>
 </html>
