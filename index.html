@@ -35,8 +35,8 @@
     color: #00ffff;
   }
 
-  /* Buttons styling for a futuristic blue glow effect */
-  .map-button, #musicToggle {
+  /* Buttons styling for map selection */
+  .map-button {
     display: block;
     width: 100%;
     padding: 15px;
@@ -51,11 +51,7 @@
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   }
 
-  #musicToggle {
-    background: linear-gradient(135deg, #00ffff, #007fff);
-  }
-
-  #musicToggle:hover {
+  .map-button:hover {
     background: linear-gradient(135deg, #007fff, #00ffff);
     box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
     transform: translateY(-3px);
@@ -95,13 +91,39 @@
     width: 100%;
     height: 100%;
   }
+
+  /* Style for the small fixed music toggle button */
+  #musicToggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 60px;
+    height: 30px;
+    font-size: 0.8em;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #00ffff, #007fff);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,255,255,0.7);
+    z-index: 999; /* stay on top */
+    transition: all 0.3s ease;
+  }
+
+  #musicToggle:hover {
+    background: linear-gradient(135deg, #007fff, #00ffff);
+    box-shadow: 0 0 15px rgba(0,255,255,1);
+    transform: translateY(-2px);
+  }
 </style>
 </head>
 <body>
 
 <!-- Background music and toggle button -->
 <audio id="backgroundMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop volume="0.2" style="display:none;"></audio>
-<button id="musicToggle">Toggle Music</button>
+<button id="musicToggle">Music</button>
 
 <!-- Main menu -->
 <div id="welcomeScreen">
@@ -134,7 +156,7 @@ let gameSpeed = 100; // default
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval;
 
-// Function to set background based on map type
+// Set background based on map type
 function setBackground() {
   if (mapType === 'beginner') {
     document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)';
@@ -176,7 +198,7 @@ musicToggleBtn.onclick = () => {
 
 // For browsers that block autoplay, start music when user interacts
 window.onload = () => {
-  // No action needed here; user must click toggle
+  // User must click toggle to start music
 };
 
 document.addEventListener('keydown', changeDirection);
