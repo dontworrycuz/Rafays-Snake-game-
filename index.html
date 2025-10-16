@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Welcome Screen</title>
+<title>Snake Game with Map Selection</title>
 <style>
   body {
     margin: 0;
@@ -26,7 +26,6 @@
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    text-align: center;
     padding: 20px;
   }
 
@@ -34,26 +33,27 @@
     color: #fff;
     font-size: 2em;
     margin-bottom: 20px;
+    text-align: center;
   }
 
-  #startButton {
+  /* Map selection buttons */
+  .map-button {
     padding: 15px 30px;
     font-size: 1.2em;
+    margin: 10px;
     border: none;
     border-radius: 8px;
-    background-color: #28a745;
-    color: #fff;
     cursor: pointer;
     transition: background-color 0.3s;
   }
 
-  #startButton:hover {
+  .map-button:hover {
     background-color: #218838;
   }
 
   /* Game container styles */
   #gameContainer {
-    display: none; /* Hidden initially, shown after starting */
+    display: none; /* Hidden initially, shown after selection */
     position: relative;
     width: 600px;
     height: 600px;
@@ -85,10 +85,12 @@
 </head>
 <body>
 
-<!-- Welcome Screen -->
+<!-- Welcome Screen with Map Selection -->
 <div id="welcomeScreen">
   <div id="welcomeMessage">Welcome to Rafay's Snake Game!</div>
-  <button id="startButton">Start Game</button>
+  <div>Select a Map:</div>
+  <button class="map-button" data-speed="100">Default Map</button>
+  <button class="map-button" data-speed="50">Super Fast Map</button>
 </div>
 
 <!-- Game Container -->
@@ -99,28 +101,24 @@
 
 <script>
   const welcomeScreen = document.getElementById('welcomeScreen');
-  const startButton = document.getElementById('startButton');
+  const startButtons = document.querySelectorAll('.map-button');
+  const gameContainer = document.getElementById('gameContainer');
 
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreDiv = document.getElementById('score');
 
-  const gridSize = 20;
-  const tileCount = canvas.width / gridSize;
+  let gameSpeed = 100; // default speed
+  let snake, direction, food, score, gameOver, gameInterval;
 
-  let snake = [{x: 10, y: 10}];
-  let direction = {x: 1, y: 0}; // start moving right
-  let food = spawnFood();
-  let score = 0;
-  let gameOver = false;
-  let gameInterval;
-
-  // Show game after clicking start
-  startButton.onclick = () => {
-    welcomeScreen.style.display = 'none';
-    document.getElementById('gameContainer').style.display = 'block';
-    startGame();
-  };
+  startButtons.forEach(btn => {
+    btn.onclick = () => {
+      gameSpeed = parseInt(btn.getAttribute('data-speed'));
+      welcomeScreen.style.display = 'none';
+      gameContainer.style.display = 'block';
+      startGame();
+    };
+  });
 
   document.addEventListener('keydown', changeDirection);
 
@@ -128,8 +126,8 @@
     let newFood;
     do {
       newFood = {
-        x: Math.floor(Math.random() * tileCount),
-        y: Math.floor(Math.random() * tileCount)
+        x: Math.floor(Math.random() * (canvas.width / 20)),
+        y: Math.floor(Math.random() * (canvas.height / 20))
       };
     } while (snake.some(s => s.x === newFood.x && s.y === newFood.y));
     return newFood;
@@ -149,7 +147,15 @@
   }
 
   function startGame() {
-    gameInterval = setInterval(update, 100);
+    // Initialize game variables
+    snake = [{x: 10, y: 10}];
+    direction = {x: 1, y: 0}; // start moving right
+    food = spawnFood();
+    score = 0;
+    scoreDiv.innerText = 'Score: 0';
+    gameOver = false;
+    // Start game loop
+    gameInterval = setInterval(update, gameSpeed);
   }
 
   function update() {
@@ -162,7 +168,7 @@
     const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
 
     // Wall collision
-    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+    if (head.x < 0 || head.x >= (canvas.width / 20) || head.y < 0 || head.y >= (canvas.height / 20)) {
       gameOver = true;
     }
 
@@ -196,22 +202,18 @@
 
     // Draw food
     ctx.fillStyle = '#f00';
-    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+    ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
 
-    // Draw snake with a realistic look
+    // Draw snake
     for (let i = 0; i < snake.length; i++) {
       const s = snake[i];
       ctx.save();
-
       ctx.fillStyle = i === 0 ? '#0f0' : '#0a0';
-
       ctx.shadowColor = ctx.fillStyle;
       ctx.shadowBlur = 10;
-
       ctx.beginPath();
-      ctx.roundRect(s.x * gridSize + 2, s.y * gridSize + 2, gridSize - 4, gridSize - 4, 4);
+      ctx.roundRect(s.x * 20 + 2, s.y * 20 + 2, 16, 16, 4);
       ctx.fill();
-
       ctx.restore();
     }
   }
