@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Futuristic Menu</title>
+<title>Snake Game with Simple Modes</title>
 <style>
   body {
     margin: 0;
@@ -32,10 +32,10 @@
     font-size: 2.5em;
     margin-bottom: 20px;
     letter-spacing: 2px;
-    color: #00ffff; /* Cyan for title */
+    color: #00ffff;
   }
 
-  /* Buttons styling for a futuristic blue glow effect */
+  /* Buttons styling */
   .map-button {
     display: block;
     width: 100%;
@@ -48,7 +48,7 @@
     background: linear-gradient(135deg, #00ffff, #007fff);
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
   }
 
   .map-button:hover {
@@ -64,7 +64,7 @@
 
   /* Game container styles */
   #gameContainer {
-    display: none; /* Hidden initially, shown after selection */
+    display: none;
     position: relative;
     width: 600px;
     height: 600px;
@@ -95,7 +95,7 @@
 </head>
 <body>
 
-<!-- Main menu with futuristic bluish coloring -->
+<!-- Main menu -->
 <div id="welcomeScreen">
   <div id="menu">
     <h1>Rafay's Snake Game</h1>
@@ -120,14 +120,14 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDiv = document.getElementById('score');
 
-let gameSpeed = 100;
+let gameSpeed = 100; // default
 let mapType = 'normal'; // default
-let snake, direction, food, score, gameOver, gameInterval, obstacles=[];
+let snake, direction, food, score, gameOver, gameInterval;
 
-// Set background based on map type
+// Set background based on mode
 function setBackground() {
   if (mapType === 'beginner') {
-    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow/gold
+    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow
   } else if (mapType === 'normal') {
     document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
   } else if (mapType === 'advanced') {
@@ -135,7 +135,7 @@ function setBackground() {
   }
 }
 
-// Start game on map selection
+// Start game when map is selected
 startButtons.forEach(btn => {
   btn.onclick = () => {
     gameSpeed = parseInt(btn.getAttribute('data-speed'));
@@ -157,38 +157,14 @@ function spawnFood() {
       y: Math.floor(Math.random() * (canvas.height / 20))
     };
   } while (
-    snake.some(s => s.x === newFood.x && s.y === newFood.y) ||
-    obstacles.some(o => o.x===newFood.x && o.y===newFood.y)
+    snake.some(s => s.x === newFood.x && s.y === newFood.y)
   );
   return newFood;
-}
-
-function generateObstacles() {
-  obstacles = [];
-  if (mapType === 'advanced') {
-    // generate random obstacles
-    for (let i=0; i<12; i++) {
-      let obstacle;
-      do {
-        obstacle = {
-          x: Math.floor(Math.random() * (canvas.width/20)),
-          y: Math.floor(Math.random() * (canvas.height/20))
-        };
-      } while (
-        snake.some(s => s.x===obstacle.x && s.y===obstacle.y) ||
-        obstacles.some(o => o.x===obstacle.x && o.y===obstacle.y) ||
-        (food.x===obstacle.x && food.y===obstacle.y)
-      );
-      obstacles.push(obstacle);
-    }
-  }
 }
 
 function startGame() {
   snake = [{x: 10, y: 10}];
   direction = {x: 1, y: 0};
-  obstacles = [];
-  generateObstacles();
   food = spawnFood();
   score = 0;
   scoreDiv.innerText = 'Score: 0';
@@ -221,12 +197,13 @@ function update() {
   const widthLimit = canvas.width / 20;
   const heightLimit = canvas.height / 20;
 
-  // Collisions with walls or snake
-  const hitWall = head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit;
-  const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
-  const hitObstacle = mapType==='advanced' ? obstacles.some(o => o.x===head.x && o.y===head.y) : false;
+  // Check wall collision
+  if (head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit) {
+    gameOver = true;
+  }
 
-  if (hitWall || hitSelf || hitObstacle) {
+  // Check self collision
+  if (snake.some(s => s.x === head.x && s.y === head.y)) {
     gameOver = true;
   }
 
@@ -251,16 +228,6 @@ function update() {
 function draw() {
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // Draw obstacles if in advanced mode
-  if (mapType==='advanced') {
-    ctx.fillStyle = '#555';
-    obstacles.forEach(o => {
-      ctx.fillRect(o.x*20, o.y*20, 20, 20);
-    });
-  }
-  // Draw food
-  ctx.fillStyle = '#f00';
-  ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
   // Draw snake
   for (let i=0; i<snake.length; i++) {
     const s = snake[i];
@@ -273,9 +240,12 @@ function draw() {
     ctx.fill();
     ctx.restore();
   }
+  // Draw food
+  ctx.fillStyle = '#f00';
+  ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
 }
 
-// Polyfill
+// Polyfill for rounded rect
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     if (w < 2 * r) r = w/2;
