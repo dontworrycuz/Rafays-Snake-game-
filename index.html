@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Maps & Futuristic Backgrounds</title>
+<title>Snake Game with Map Speed Options</title>
 <style>
   body {
     margin: 0;
@@ -99,7 +99,7 @@
     <div style="margin-top:20px;">Select a Map:</div>
     <button class="map-button" data-speed="150" data-map="beginner">Beginner</button>
     <button class="map-button" data-speed="100" data-map="normal">Normal</button>
-    <button class="map-button" data-speed="50" data-map="advanced">Advanced</button>
+    <button class="map-button" data-speed="30" data-map="advanced">Advanced</button>
   </div>
 </div>
 
@@ -121,22 +121,18 @@ let gameSpeed = 100;
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval, obstacles=[];
 
-// Function to set background based on map type
-function setBackground() {
-  if (mapType === 'beginner') {
-    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow/gold
-  } else if (mapType === 'normal') {
-    document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
-  } else if (mapType === 'advanced') {
-    document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)'; // emerald green
-  }
-}
-
 startButtons.forEach(btn => {
   btn.onclick = () => {
     gameSpeed = parseInt(btn.getAttribute('data-speed'));
     mapType = btn.getAttribute('data-map');
-    setBackground();
+    // Set background color based on map
+    if (mapType === 'beginner') {
+      document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow/gold
+    } else if (mapType === 'normal') {
+      document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
+    } else if (mapType === 'advanced') {
+      document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)'; // emerald green
+    }
     welcomeScreen.style.display = 'none';
     gameContainer.style.display = 'block';
     startGame();
@@ -153,38 +149,14 @@ function spawnFood() {
       y: Math.floor(Math.random() * (canvas.height / 20))
     };
   } while (
-    snake.some(s => s.x === newFood.x && s.y === newFood.y) ||
-    obstacles.some(o => o.x===newFood.x && o.y===newFood.y)
+    snake.some(s => s.x === newFood.x && s.y === newFood.y)
   );
   return newFood;
-}
-
-function generateObstacles() {
-  obstacles = [];
-  if (mapType === 'advanced') {
-    // generate random obstacles
-    for (let i=0; i<12; i++) {
-      let obstacle;
-      do {
-        obstacle = {
-          x: Math.floor(Math.random() * (canvas.width/20)),
-          y: Math.floor(Math.random() * (canvas.height/20))
-        };
-      } while (
-        snake.some(s => s.x===obstacle.x && s.y===obstacle.y) ||
-        obstacles.some(o => o.x===obstacle.x && o.y===obstacle.y) ||
-        (food.x===obstacle.x && food.y===obstacle.y)
-      );
-      obstacles.push(obstacle);
-    }
-  }
 }
 
 function startGame() {
   snake = [{x: 10, y: 10}];
   direction = {x: 1, y: 0};
-  obstacles = [];
-  generateObstacles();
   food = spawnFood();
   score = 0;
   scoreDiv.innerText = 'Score: 0';
@@ -217,13 +189,18 @@ function update() {
   const widthLimit = canvas.width / 20;
   const heightLimit = canvas.height / 20;
 
-  // Check collisions with wall, snake, obstacles
+  // Check collisions with wall, snake
   const hitWall = head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit;
   const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
-  const hitObstacle = obstacles.some(o => o.x===head.x && o.y===head.y);
 
-  if (hitWall || hitSelf || hitObstacle) {
+  if (hitWall || hitSelf) {
     gameOver = true;
+  }
+
+  // Check obstacle collision in advanced mode
+  if (mapType === 'advanced') {
+    const hitObstacle = obstacles.some(o => o.x===head.x && o.y===head.y);
+    if (hitObstacle) gameOver=true;
   }
 
   if (gameOver) {
@@ -237,7 +214,11 @@ function update() {
     score++;
     scoreDiv.innerText = 'Score: ' + score;
     food = spawnFood();
-    // For advanced, obstacles are generated at start and stay static
+    // Keep obstacles static in advanced
+    if (mapType === 'advanced') {
+      // Optional: regenerate obstacles for more challenge
+      // generateObstacles();
+    }
   } else {
     snake.pop();
   }
@@ -249,10 +230,12 @@ function draw() {
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   // Draw obstacles if any
-  ctx.fillStyle = '#555';
-  obstacles.forEach(o => {
-    ctx.fillRect(o.x*20, o.y*20, 20, 20);
-  });
+  if (mapType === 'advanced') {
+    ctx.fillStyle = '#555';
+    obstacles.forEach(o => {
+      ctx.fillRect(o.x*20, o.y*20, 20, 20);
+    });
+  }
   // Draw food
   ctx.fillStyle = '#f00';
   ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
