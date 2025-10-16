@@ -62,7 +62,7 @@
 
   /* Game container styles */
   #gameContainer {
-    display: none;
+    display: none; /* Hidden initially, shown after selection */
     position: relative;
     width: 600px;
     height: 600px;
@@ -121,10 +121,10 @@ let gameSpeed = 100;
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval, obstacles=[];
 
-// Set background color based on map type
+// Function to set background based on map type
 function setBackground() {
   if (mapType === 'beginner') {
-    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow, gold
+    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow/gold
   } else if (mapType === 'normal') {
     document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
   } else if (mapType === 'advanced') {
@@ -217,7 +217,7 @@ function update() {
   const widthLimit = canvas.width / 20;
   const heightLimit = canvas.height / 20;
 
-  // Check collisions
+  // Check collisions with wall, snake, obstacles
   const hitWall = head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit;
   const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
   const hitObstacle = obstacles.some(o => o.x===head.x && o.y===head.y);
@@ -237,7 +237,7 @@ function update() {
     score++;
     scoreDiv.innerText = 'Score: ' + score;
     food = spawnFood();
-    if (mapType === 'advanced') generateObstacles(); // regenerate obstacles for challenge
+    // For advanced, obstacles are generated at start and stay static
   } else {
     snake.pop();
   }
@@ -248,7 +248,7 @@ function update() {
 function draw() {
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // Draw obstacles
+  // Draw obstacles if any
   ctx.fillStyle = '#555';
   obstacles.forEach(o => {
     ctx.fillRect(o.x*20, o.y*20, 20, 20);
@@ -270,7 +270,7 @@ function draw() {
   }
 }
 
-// Polyfill for rounded rect
+// Polyfill
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     if (w < 2 * r) r = w/2;
@@ -285,13 +285,6 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
     return this;
   }
 }
-
-// Initialize background color for default on page load
-setTimeout(() => {
-  // Set default background before selection
-  document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby
-}, 100);
-
 </script>
 </body>
 </html>
