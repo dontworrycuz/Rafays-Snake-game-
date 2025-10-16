@@ -35,7 +35,7 @@
     color: #00ffff;
   }
 
-  /* Buttons styling for map selection */
+  /* Map selection buttons styling */
   .map-button {
     display: block;
     width: 100%;
@@ -92,11 +92,11 @@
     height: 100%;
   }
 
-  /* Style for the small fixed music toggle button */
+  /* Style for the small fixed music toggle button at bottom right */
   #musicToggle {
     position: fixed;
-    top: 10px;
-    left: 10px;
+    bottom: 20px; /* moved from top to bottom */
+    right: 20px; /* moved to bottom right corner */
     width: 60px;
     height: 30px;
     font-size: 0.8em;
@@ -183,7 +183,6 @@ startButtons.forEach(btn => {
 let musicStarted = false;
 musicToggleBtn.onclick = () => {
   if (!musicStarted) {
-    // Try to play music on user interaction
     music.volume = 0.2;
     music.play();
     musicStarted = true;
@@ -196,9 +195,9 @@ musicToggleBtn.onclick = () => {
   }
 };
 
-// For browsers that block autoplay, start music when user interacts
+// For browsers that block autoplay, user must click toggle to start music
 window.onload = () => {
-  // User must click toggle to start music
+  // Wait for user interaction
 };
 
 document.addEventListener('keydown', changeDirection);
