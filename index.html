@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Maps</title>
+<title>Snake Game with Maps & Futuristic Backgrounds</title>
 <style>
   body {
     margin: 0;
     height: 100vh;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,18 +55,17 @@
     box-shadow: 0 12px 20px rgba(0,0,0,0.3);
   }
 
-  /* Hide welcome overlay on start */
+  /* Welcome overlay styles */
   #welcomeScreen {
     display: flex;
   }
 
   /* Game container styles */
   #gameContainer {
-    display: none; /* Hidden initially, shown after selection */
+    display: none;
     position: relative;
     width: 600px;
     height: 600px;
-    background-color: #111;
     border: 4px solid #555;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
   }
@@ -80,7 +78,6 @@
     color: #fff;
     font-size: 24px;
     padding: 8px 16px;
-    background: rgba(0,0,0,0.5);
     border-radius: 8px;
     font-family: Arial, sans-serif;
     z-index: 1;
@@ -95,7 +92,7 @@
 </head>
 <body>
 
-<!-- Welcome menu with map options -->
+<!-- Main menu with map options -->
 <div id="welcomeScreen">
   <div id="menu">
     <h1>Rafay's Snake Game</h1>
@@ -116,7 +113,6 @@
 const welcomeScreen = document.getElementById('welcomeScreen');
 const startButtons = document.querySelectorAll('.map-button');
 const gameContainer = document.getElementById('gameContainer');
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDiv = document.getElementById('score');
@@ -125,10 +121,22 @@ let gameSpeed = 100;
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval, obstacles=[];
 
+// Set background color based on map type
+function setBackground() {
+  if (mapType === 'beginner') {
+    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow, gold
+  } else if (mapType === 'normal') {
+    document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
+  } else if (mapType === 'advanced') {
+    document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)'; // emerald green
+  }
+}
+
 startButtons.forEach(btn => {
   btn.onclick = () => {
     gameSpeed = parseInt(btn.getAttribute('data-speed'));
     mapType = btn.getAttribute('data-map');
+    setBackground();
     welcomeScreen.style.display = 'none';
     gameContainer.style.display = 'block';
     startGame();
@@ -144,7 +152,10 @@ function spawnFood() {
       x: Math.floor(Math.random() * (canvas.width / 20)),
       y: Math.floor(Math.random() * (canvas.height / 20))
     };
-  } while (snake.some(s => s.x === newFood.x && s.y === newFood.y) || obstacles.some(o => o.x===newFood.x && o.y===newFood.y));
+  } while (
+    snake.some(s => s.x === newFood.x && s.y === newFood.y) ||
+    obstacles.some(o => o.x===newFood.x && o.y===newFood.y)
+  );
   return newFood;
 }
 
@@ -152,7 +163,7 @@ function generateObstacles() {
   obstacles = [];
   if (mapType === 'advanced') {
     // generate random obstacles
-    for (let i=0; i<10; i++) {
+    for (let i=0; i<12; i++) {
       let obstacle;
       do {
         obstacle = {
@@ -203,8 +214,11 @@ function update() {
   }
 
   const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+  const widthLimit = canvas.width / 20;
+  const heightLimit = canvas.height / 20;
+
   // Check collisions
-  const hitWall = head.x < 0 || head.x >= (canvas.width / 20) || head.y < 0 || head.y >= (canvas.height / 20);
+  const hitWall = head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit;
   const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
   const hitObstacle = obstacles.some(o => o.x===head.x && o.y===head.y);
 
@@ -223,8 +237,7 @@ function update() {
     score++;
     scoreDiv.innerText = 'Score: ' + score;
     food = spawnFood();
-    // regenerate obstacles on advanced for more challenge
-    if (mapType === 'advanced') generateObstacles();
+    if (mapType === 'advanced') generateObstacles(); // regenerate obstacles for challenge
   } else {
     snake.pop();
   }
@@ -272,6 +285,13 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
     return this;
   }
 }
+
+// Initialize background color for default on page load
+setTimeout(() => {
+  // Set default background before selection
+  document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby
+}, 100);
+
 </script>
 </body>
 </html>
