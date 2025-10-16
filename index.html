@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Futuristic Menu and Music</title>
+<title>Snake Game with Futuristic Menu and Music Toggle</title>
 <style>
   body {
     margin: 0;
@@ -36,7 +36,7 @@
   }
 
   /* Buttons styling for a futuristic blue glow effect */
-  .map-button {
+  .map-button, #musicToggle {
     display: block;
     width: 100%;
     padding: 15px;
@@ -51,7 +51,11 @@
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   }
 
-  .map-button:hover {
+  #musicToggle {
+    background: linear-gradient(135deg, #00ffff, #007fff);
+  }
+
+  #musicToggle:hover {
     background: linear-gradient(135deg, #007fff, #00ffff);
     box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
     transform: translateY(-3px);
@@ -95,8 +99,9 @@
 </head>
 <body>
 
-<!-- Background Music -->
-<audio id="backgroundMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop volume="0.2" style="display:none;"></audio>
+<!-- Background music and toggle button -->
+<audio id="backgroundMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop volume="0.2" style="display:none;"></audio>
+<button id="musicToggle">Toggle Music</button>
 
 <!-- Main menu -->
 <div id="welcomeScreen">
@@ -122,24 +127,14 @@ const gameContainer = document.getElementById('gameContainer');
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDiv = document.getElementById('score');
-
-// Play music properly (autoplay might be blocked by browsers)
 const music = document.getElementById('backgroundMusic');
-window.onload = () => {
-  try {
-    music.volume = 0.2;
-    music.play();
-  } catch(e) {
-    // Autoplay might be blocked, so no problem
-    console.log('Autoplay blocked, user interaction required for music.');
-  }
-};
+const musicToggleBtn = document.getElementById('musicToggle');
 
-let gameSpeed = 100;
+let gameSpeed = 100; // default
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval;
 
-// Set background based on map type
+// Function to set background based on map type
 function setBackground() {
   if (mapType === 'beginner') {
     document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)';
@@ -161,6 +156,28 @@ startButtons.forEach(btn => {
     startGame();
   };
 });
+
+// Toggle music on button click
+let musicStarted = false;
+musicToggleBtn.onclick = () => {
+  if (!musicStarted) {
+    // Try to play music on user interaction
+    music.volume = 0.2;
+    music.play();
+    musicStarted = true;
+  } else {
+    if (music.paused) {
+      music.play();
+    } else {
+      music.pause();
+    }
+  }
+};
+
+// For browsers that block autoplay, start music when user interacts
+window.onload = () => {
+  // No action needed here; user must click toggle
+};
 
 document.addEventListener('keydown', changeDirection);
 
@@ -212,12 +229,9 @@ function update() {
   const widthLimit = canvas.width / 20;
   const heightLimit = canvas.height / 20;
 
-  // Check wall collision
   if (head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit) {
     gameOver = true;
   }
-
-  // Check self collision
   if (snake.some(s => s.x === head.x && s.y === head.y)) {
     gameOver = true;
   }
