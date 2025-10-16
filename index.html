@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Simple Modes</title>
+<title>Snake Game with Futuristic Menu and Music</title>
 <style>
   body {
     margin: 0;
@@ -35,7 +35,7 @@
     color: #00ffff;
   }
 
-  /* Buttons styling */
+  /* Buttons styling for a futuristic blue glow effect */
   .map-button {
     display: block;
     width: 100%;
@@ -48,7 +48,7 @@
     background: linear-gradient(135deg, #00ffff, #007fff);
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   }
 
   .map-button:hover {
@@ -95,6 +95,9 @@
 </head>
 <body>
 
+<!-- Background Music -->
+<audio id="backgroundMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop volume="0.2" style="display:none;"></audio>
+
 <!-- Main menu -->
 <div id="welcomeScreen">
   <div id="menu">
@@ -120,18 +123,30 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDiv = document.getElementById('score');
 
-let gameSpeed = 100; // default
+// Play music properly (autoplay might be blocked by browsers)
+const music = document.getElementById('backgroundMusic');
+window.onload = () => {
+  try {
+    music.volume = 0.2;
+    music.play();
+  } catch(e) {
+    // Autoplay might be blocked, so no problem
+    console.log('Autoplay blocked, user interaction required for music.');
+  }
+};
+
+let gameSpeed = 100;
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval;
 
-// Set background based on mode
+// Set background based on map type
 function setBackground() {
   if (mapType === 'beginner') {
-    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow
+    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)';
   } else if (mapType === 'normal') {
-    document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
+    document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)';
   } else if (mapType === 'advanced') {
-    document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)'; // emerald green
+    document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)';
   }
 }
 
@@ -245,7 +260,7 @@ function draw() {
   ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
 }
 
-// Polyfill for rounded rect
+// Polyfill
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     if (w < 2 * r) r = w/2;
