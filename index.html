@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Snake Game with Map Speed Options</title>
+<title>Snake Game with Futuristic Menu</title>
 <style>
   body {
     margin: 0;
@@ -14,13 +14,13 @@
     align-items: center;
   }
 
-  /* Main menu styles */
+  /* Main menu styles - futuristic bluish */
   #menu {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    backdrop-filter: blur(15px);
     border-radius: 20px;
     padding: 40px 60px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    box-shadow: 0 0 40px rgba(0, 191, 255, 0.6);
     text-align: center;
     color: #fff;
     width: 80%;
@@ -28,12 +28,14 @@
   }
 
   #menu h1 {
+    font-family: 'Orbitron', Arial, sans-serif;
     font-size: 2.5em;
     margin-bottom: 20px;
     letter-spacing: 2px;
+    color: #00ffff; /* Cyan for title */
   }
 
-  /* Map buttons styling */
+  /* Buttons styling for a futuristic blue glow effect */
   .map-button {
     display: block;
     width: 100%;
@@ -43,16 +45,16 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    background: linear-gradient(135deg, #00ffff, #007fff);
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   }
 
   .map-button:hover {
-    background: linear-gradient(135deg, #2575fc, #6a11cb);
+    background: linear-gradient(135deg, #007fff, #00ffff);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
     transform: translateY(-3px);
-    box-shadow: 0 12px 20px rgba(0,0,0,0.3);
   }
 
   /* Welcome overlay styles */
@@ -78,6 +80,7 @@
     color: #fff;
     font-size: 24px;
     padding: 8px 16px;
+    background: rgba(0,0,0,0.5);
     border-radius: 8px;
     font-family: Arial, sans-serif;
     z-index: 1;
@@ -92,7 +95,7 @@
 </head>
 <body>
 
-<!-- Main menu with map options -->
+<!-- Main menu with futuristic bluish coloring -->
 <div id="welcomeScreen">
   <div id="menu">
     <h1>Rafay's Snake Game</h1>
@@ -121,18 +124,23 @@ let gameSpeed = 100;
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval, obstacles=[];
 
+// Set background based on map type
+function setBackground() {
+  if (mapType === 'beginner') {
+    document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow/gold
+  } else if (mapType === 'normal') {
+    document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
+  } else if (mapType === 'advanced') {
+    document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)'; // emerald green
+  }
+}
+
+// Start game on map selection
 startButtons.forEach(btn => {
   btn.onclick = () => {
     gameSpeed = parseInt(btn.getAttribute('data-speed'));
     mapType = btn.getAttribute('data-map');
-    // Set background color based on map
-    if (mapType === 'beginner') {
-      document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)'; // yellow/gold
-    } else if (mapType === 'normal') {
-      document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)'; // ruby red
-    } else if (mapType === 'advanced') {
-      document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)'; // emerald green
-    }
+    setBackground();
     welcomeScreen.style.display = 'none';
     gameContainer.style.display = 'block';
     startGame();
@@ -149,14 +157,38 @@ function spawnFood() {
       y: Math.floor(Math.random() * (canvas.height / 20))
     };
   } while (
-    snake.some(s => s.x === newFood.x && s.y === newFood.y)
+    snake.some(s => s.x === newFood.x && s.y === newFood.y) ||
+    obstacles.some(o => o.x===newFood.x && o.y===newFood.y)
   );
   return newFood;
+}
+
+function generateObstacles() {
+  obstacles = [];
+  if (mapType === 'advanced') {
+    // generate random obstacles
+    for (let i=0; i<12; i++) {
+      let obstacle;
+      do {
+        obstacle = {
+          x: Math.floor(Math.random() * (canvas.width/20)),
+          y: Math.floor(Math.random() * (canvas.height/20))
+        };
+      } while (
+        snake.some(s => s.x===obstacle.x && s.y===obstacle.y) ||
+        obstacles.some(o => o.x===obstacle.x && o.y===obstacle.y) ||
+        (food.x===obstacle.x && food.y===obstacle.y)
+      );
+      obstacles.push(obstacle);
+    }
+  }
 }
 
 function startGame() {
   snake = [{x: 10, y: 10}];
   direction = {x: 1, y: 0};
+  obstacles = [];
+  generateObstacles();
   food = spawnFood();
   score = 0;
   scoreDiv.innerText = 'Score: 0';
@@ -189,18 +221,13 @@ function update() {
   const widthLimit = canvas.width / 20;
   const heightLimit = canvas.height / 20;
 
-  // Check collisions with wall, snake
+  // Collisions with walls or snake
   const hitWall = head.x < 0 || head.x >= widthLimit || head.y < 0 || head.y >= heightLimit;
   const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
+  const hitObstacle = mapType==='advanced' ? obstacles.some(o => o.x===head.x && o.y===head.y) : false;
 
-  if (hitWall || hitSelf) {
+  if (hitWall || hitSelf || hitObstacle) {
     gameOver = true;
-  }
-
-  // Check obstacle collision in advanced mode
-  if (mapType === 'advanced') {
-    const hitObstacle = obstacles.some(o => o.x===head.x && o.y===head.y);
-    if (hitObstacle) gameOver=true;
   }
 
   if (gameOver) {
@@ -214,11 +241,6 @@ function update() {
     score++;
     scoreDiv.innerText = 'Score: ' + score;
     food = spawnFood();
-    // Keep obstacles static in advanced
-    if (mapType === 'advanced') {
-      // Optional: regenerate obstacles for more challenge
-      // generateObstacles();
-    }
   } else {
     snake.pop();
   }
@@ -229,8 +251,8 @@ function update() {
 function draw() {
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // Draw obstacles if any
-  if (mapType === 'advanced') {
+  // Draw obstacles if in advanced mode
+  if (mapType==='advanced') {
     ctx.fillStyle = '#555';
     obstacles.forEach(o => {
       ctx.fillRect(o.x*20, o.y*20, 20, 20);
