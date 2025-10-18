@@ -156,14 +156,26 @@ let gameSpeed = 100; // default
 let mapType = 'normal'; // default
 let snake, direction, food, score, gameOver, gameInterval;
 
-// Set background based on map type
+// Set background based on map type with snake patterns
 function setBackground() {
   if (mapType === 'beginner') {
     document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)';
+    document.body.style.backgroundImage = `
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.05) 35px, rgba(0,0,0,0.05) 70px),
+      repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.03) 35px, rgba(0,0,0,0.03) 70px)
+    `;
   } else if (mapType === 'normal') {
     document.body.style.background = 'linear-gradient(135deg, #AA0114, #B40404)';
+    document.body.style.backgroundImage = `
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.1) 35px, rgba(0,0,0,0.1) 70px),
+      repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.08) 35px, rgba(0,0,0,0.08) 70px)
+    `;
   } else if (mapType === 'advanced') {
     document.body.style.background = 'linear-gradient(135deg, #50C878, #008000)';
+    document.body.style.backgroundImage = `
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.1) 35px, rgba(0,0,0,0.1) 70px),
+      repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.08) 35px, rgba(0,0,0,0.08) 70px)
+    `;
   }
 }
 
@@ -278,21 +290,133 @@ function update() {
 function draw() {
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // Draw snake
+  
+  // Draw snake with realistic texture
   for (let i=0; i<snake.length; i++) {
     const s = snake[i];
+    const x = s.x * 20;
+    const y = s.y * 20;
+    
     ctx.save();
-    ctx.fillStyle = i===0 ? '#0f0' : '#0a0';
-    ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur = 10;
+    
+    // Main body color - different for head
+    if (i === 0) {
+      // Head - brighter green with gradient
+      const gradient = ctx.createRadialGradient(x + 10, y + 10, 2, x + 10, y + 10, 10);
+      gradient.addColorStop(0, '#0f0');
+      gradient.addColorStop(1, '#0a0');
+      ctx.fillStyle = gradient;
+    } else {
+      // Body - darker green with gradient
+      const gradient = ctx.createRadialGradient(x + 10, y + 10, 2, x + 10, y + 10, 10);
+      gradient.addColorStop(0, '#0c0');
+      gradient.addColorStop(1, '#060');
+      ctx.fillStyle = gradient;
+    }
+    
+    // Draw main body segment
+    ctx.shadowColor = '#0f0';
+    ctx.shadowBlur = 8;
     ctx.beginPath();
-    ctx.roundRect(s.x * 20 + 2, s.y * 20 + 2, 16, 16, 4);
+    ctx.roundRect(x + 1, y + 1, 18, 18, 5);
     ctx.fill();
+    
+    // Add scale pattern
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    
+    // Draw overlapping circles to create scale effect
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 2; col++) {
+        const offsetX = row % 2 === 0 ? 0 : 5;
+        ctx.beginPath();
+        ctx.arc(x + 5 + col * 10 + offsetX, y + 5 + row * 10, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Add highlights for 3D effect
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.beginPath();
+    ctx.arc(x + 7, y + 7, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // If head, add eyes
+    if (i === 0) {
+      // Determine eye position based on direction
+      let eyeX1 = x + 8, eyeY1 = y + 8;
+      let eyeX2 = x + 12, eyeY2 = y + 8;
+      
+      if (direction.x === 1) { // Right
+        eyeX1 = x + 14; eyeY1 = y + 7;
+        eyeX2 = x + 14; eyeY2 = y + 13;
+      } else if (direction.x === -1) { // Left
+        eyeX1 = x + 6; eyeY1 = y + 7;
+        eyeX2 = x + 6; eyeY2 = y + 13;
+      } else if (direction.y === 1) { // Down
+        eyeX1 = x + 7; eyeY1 = y + 14;
+        eyeX2 = x + 13; eyeY2 = y + 14;
+      } else if (direction.y === -1) { // Up
+        eyeX1 = x + 7; eyeY1 = y + 6;
+        eyeX2 = x + 13; eyeY2 = y + 6;
+      }
+      
+      // Draw eyes
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(eyeX1, eyeY1, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(eyeX2, eyeY2, 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw pupils
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(eyeX1, eyeY1, 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(eyeX2, eyeY2, 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
     ctx.restore();
   }
-  // Draw food
-  ctx.fillStyle = '#f00';
-  ctx.fillRect(food.x * 20, food.y * 20, 20, 20);
+  
+  // Draw food as apple
+  ctx.save();
+  const fx = food.x * 20;
+  const fy = food.y * 20;
+  
+  // Apple body
+  const appleGradient = ctx.createRadialGradient(fx + 10, fy + 12, 3, fx + 10, fy + 12, 9);
+  appleGradient.addColorStop(0, '#ff4444');
+  appleGradient.addColorStop(1, '#cc0000');
+  ctx.fillStyle = appleGradient;
+  ctx.shadowColor = '#f00';
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc(fx + 10, fy + 12, 8, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Apple highlight
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.beginPath();
+  ctx.arc(fx + 8, fy + 10, 3, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Apple stem
+  ctx.fillStyle = '#654321';
+  ctx.fillRect(fx + 9, fy + 3, 2, 5);
+  
+  // Leaf
+  ctx.fillStyle = '#0a0';
+  ctx.beginPath();
+  ctx.ellipse(fx + 13, fy + 5, 3, 2, Math.PI / 4, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.restore();
 }
 
 // Polyfill
