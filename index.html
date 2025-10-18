@@ -16,8 +16,31 @@
     overflow: hidden;
   }
   
-  /* Animated snake patterns in background */
-  body::before,
+  /* Jungle background with animated elements */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -2;
+    background: 
+      linear-gradient(180deg, 
+        rgba(30, 60, 40, 0.9) 0%,
+        rgba(20, 45, 30, 0.95) 50%,
+        rgba(15, 35, 25, 1) 100%
+      ),
+      radial-gradient(ellipse 40px 80px at 10% 20%, rgba(34, 139, 34, 0.4), transparent),
+      radial-gradient(ellipse 60px 100px at 90% 15%, rgba(0, 100, 0, 0.3), transparent),
+      radial-gradient(ellipse 50px 90px at 30% 80%, rgba(46, 125, 50, 0.35), transparent),
+      radial-gradient(ellipse 70px 120px at 80% 75%, rgba(27, 94, 32, 0.4), transparent),
+      radial-gradient(ellipse 45px 85px at 50% 40%, rgba(56, 142, 60, 0.3), transparent),
+      radial-gradient(ellipse 55px 95px at 15% 60%, rgba(20, 90, 30, 0.35), transparent),
+      radial-gradient(ellipse 65px 110px at 70% 50%, rgba(34, 139, 34, 0.3), transparent);
+    opacity: 1;
+  }
+  
+  /* Animated snakes in jungle */
   body::after {
     content: '';
     position: fixed;
@@ -25,56 +48,42 @@
     height: 100%;
     pointer-events: none;
     z-index: -1;
-  }
-  
-  body::before {
     background-image: 
-      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M20,100 Q50,80 80,100 T140,100 T200,100" stroke="rgba(0,0,0,0.15)" stroke-width="25" fill="none" stroke-linecap="round"/><circle cx="25" cy="100" r="15" fill="rgba(0,0,0,0.15)"/><ellipse cx="18" cy="95" rx="3" ry="5" fill="rgba(255,255,255,0.3)"/></svg>');
-    animation: snakeMove1 20s linear infinite;
-    opacity: 0.6;
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250"><path d="M20,125 Q50,105 80,125 T140,125 T200,125" stroke="rgba(139,69,19,0.25)" stroke-width="28" fill="none" stroke-linecap="round"/><circle cx="25" cy="125" r="16" fill="rgba(101,67,33,0.3)"/><ellipse cx="18" cy="120" rx="3" ry="5" fill="rgba(255,255,150,0.5)"/></svg>'),
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><path d="M0,110 Q35,130 70,110 T140,110 T200,110" stroke="rgba(34,139,34,0.3)" stroke-width="24" fill="none" stroke-linecap="round"/><circle cx="195" cy="110" r="14" fill="rgba(20,100,20,0.35)"/><ellipse cx="200" cy="106" rx="3" ry="4" fill="rgba(255,255,100,0.6)"/></svg>');
+    background-size: 250px 250px, 220px 220px;
+    background-position: 0% 0%, 100% 100%;
+    animation: snakeCrawl1 25s linear infinite, snakeCrawl2 30s linear infinite;
+    opacity: 0.7;
   }
   
-  body::after {
-    background-image: 
-      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M0,100 Q30,120 60,100 T120,100 T180,100" stroke="rgba(0,0,0,0.12)" stroke-width="22" fill="none" stroke-linecap="round"/><circle cx="185" cy="100" r="13" fill="rgba(0,0,0,0.12)"/><ellipse cx="190" cy="96" rx="3" ry="4" fill="rgba(255,255,255,0.25)"/></svg>');
-    animation: snakeMove2 25s linear infinite reverse;
-    opacity: 0.5;
-  }
-  
-@keyframes snakeMove1 {
+  @keyframes snakeCrawl1 {
     0% { 
-      transform: translateX(-200px) translateY(-200px) scaleX(1); 
+      background-position: 0% 0%, 100% 100%;
+      transform: scaleX(1);
     }
     25% { 
-      transform: translateX(25vw) translateY(25vh) scaleX(1.1) scaleY(0.95); 
+      background-position: 25% 25%, 75% 75%;
+      transform: scaleX(1.08) scaleY(0.96);
     }
     50% { 
-      transform: translateX(50vw) translateY(50vh) scaleX(0.9) scaleY(1.05); 
+      background-position: 50% 50%, 50% 50%;
+      transform: scaleX(0.94) scaleY(1.04);
     }
     75% { 
-      transform: translateX(75vw) translateY(75vh) scaleX(1.1) scaleY(0.95); 
+      background-position: 75% 75%, 25% 25%;
+      transform: scaleX(1.08) scaleY(0.96);
     }
     100% { 
-      transform: translateX(100vw) translateY(100vh) scaleX(1); 
+      background-position: 100% 100%, 0% 0%;
+      transform: scaleX(1);
     }
   }
   
-  @keyframes snakeMove2 {
-    0% { 
-      transform: translateX(100vw) translateY(-200px) rotate(180deg) scaleX(1); 
-    }
-    25% { 
-      transform: translateX(75vw) translateY(25vh) rotate(180deg) scaleX(0.9) scaleY(1.05); 
-    }
-    50% { 
-      transform: translateX(50vw) translateY(50vh) rotate(180deg) scaleX(1.1) scaleY(0.95); 
-    }
-    75% { 
-      transform: translateX(25vw) translateY(75vh) rotate(180deg) scaleX(0.9) scaleY(1.05); 
-    }
-    100% { 
-      transform: translateX(-200px) translateY(100vh) rotate(180deg) scaleX(1); 
-    }
+  @keyframes snakeCrawl2 {
+    0% { opacity: 0.7; }
+    50% { opacity: 0.5; }
+    100% { opacity: 0.7; }
   }
 
   /* Main menu styles - futuristic bluish */
@@ -251,7 +260,7 @@ let gameSpeed = 100;
 let mapType = 'normal';
 let snake, direction, food, score, gameOver, gameInterval;
 
-// Set background based on map type with snake patterns
+// Set background based on map type
 function setBackground() {
   if (mapType === 'beginner') {
     document.body.style.background = 'linear-gradient(135deg, #FFD700, #FFFF00)';
@@ -378,14 +387,14 @@ function update() {
 }
 
 function draw() {
-  // Dark background with animated scanlines
+  // Dark background with gradient
   const bgGradient = ctx.createRadialGradient(300, 300, 50, 300, 300, 400);
   bgGradient.addColorStop(0, '#0d0d0d');
   bgGradient.addColorStop(1, '#000000');
   ctx.fillStyle = bgGradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Subtle grid with glow
+  // Subtle grid
   ctx.strokeStyle = 'rgba(0, 255, 65, 0.05)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= canvas.width; i += 20) {
@@ -407,173 +416,69 @@ function draw() {
     const x = s.x * 20;
     const y = s.y * 20;
     const isHead = i === 0;
+    const fadeRatio = 1 - (i / snake.length) * 0.5;
     
     ctx.save();
     
-    // Calculate fade effect for tail
-    const fadeRatio = 1 - (i / snake.length) * 0.5;
-    
     if (isHead) {
-      // PREMIUM HEAD DESIGN
-      // Outer glow layers
+      // Head design
       ctx.shadowColor = '#00ff41';
       ctx.shadowBlur = 30;
       ctx.fillStyle = 'rgba(0, 255, 65, 0.3)';
-      ctx.beginPath();
-      ctx.roundRect(x - 2, y - 2, 24, 24, 8);
-      ctx.fill();
+      ctx.fillRect(x - 2, y - 2, 24, 24);
       
-      // Main head gradient
       const headGrad = ctx.createLinearGradient(x, y, x + 20, y + 20);
       headGrad.addColorStop(0, '#00ff88');
       headGrad.addColorStop(0.5, '#00ff41');
       headGrad.addColorStop(1, '#00dd35');
       ctx.fillStyle = headGrad;
       ctx.shadowBlur = 25;
-      ctx.beginPath();
-      ctx.roundRect(x + 1, y + 1, 18, 18, 7);
-      ctx.fill();
+      ctx.fillRect(x + 1, y + 1, 18, 18);
       
-      // Inner highlight layer
       ctx.shadowBlur = 0;
       const highlightGrad = ctx.createRadialGradient(x + 6, y + 6, 0, x + 10, y + 10, 12);
       highlightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
       highlightGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
       highlightGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = highlightGrad;
-      ctx.beginPath();
-      ctx.roundRect(x + 2, y + 2, 16, 16, 6);
-      ctx.fill();
+      ctx.fillRect(x + 2, y + 2, 16, 16);
       
-      // Border accent
       ctx.strokeStyle = '#00ffaa';
       ctx.lineWidth = 2;
       ctx.shadowColor = '#00ffaa';
       ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.roundRect(x + 2.5, y + 2.5, 15, 15, 6);
-      ctx.stroke();
+      ctx.strokeRect(x + 2.5, y + 2.5, 15, 15);
       
-      // Scale pattern on head
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-      for (let sy = 0; sy < 2; sy++) {
-        for (let sx = 0; sx < 2; sx++) {
-          ctx.beginPath();
-          ctx.arc(x + 6 + sx * 8, y + 6 + sy * 8, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      
-      // Snake head features based on direction
-      let mouthX, mouthY, tongueX, tongueY, eyeX, eyeY;
-      
-      if (direction.x === 1) { // Right
-        eyeX = x + 13; eyeY = y + 8;
-        mouthX = x + 16; mouthY = y + 12;
-        tongueX = x + 19; tongueY = y + 12;
-      } else if (direction.x === -1) { // Left
-        eyeX = x + 7; eyeY = y + 8;
-        mouthX = x + 4; mouthY = y + 12;
-        tongueX = x + 1; tongueY = y + 12;
-      } else if (direction.y === 1) { // Down
-        eyeX = x + 12; eyeY = y + 13;
-        mouthX = x + 8; mouthY = y + 16;
-        tongueX = x + 8; tongueY = y + 19;
-      } else { // Up
-        eyeX = x + 12; eyeY = y + 7;
-        mouthX = x + 8; mouthY = y + 4;
-        tongueX = x + 8; tongueY = y + 1;
-      }
-      
-      // Single eye (more snake-like)
+      // Eye
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#ffff00';
       ctx.beginPath();
-      ctx.arc(eyeX, eyeY, 4, 0, Math.PI * 2);
+      ctx.arc(x + 12, y + 8, 4, 0, Math.PI * 2);
       ctx.fill();
       
-      // Slit pupil
       ctx.fillStyle = '#000000';
-      if (direction.y !== 0) {
-        ctx.fillRect(eyeX - 0.8, eyeY - 4, 1.6, 8);
-      } else {
-        ctx.fillRect(eyeX - 4, eyeY - 0.8, 8, 1.6);
-      }
+      ctx.fillRect(x + 11.2, y + 4, 1.6, 8);
       
-      // Eye shine
       ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.beginPath();
-      ctx.arc(eyeX - 1, eyeY - 1, 1.5, 0, Math.PI * 2);
+      ctx.arc(x + 11, y + 7, 1.5, 0, Math.PI * 2);
       ctx.fill();
       
-      // Mouth
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      if (direction.x === 1) {
-        ctx.arc(mouthX - 2, mouthY, 3, -Math.PI/4, Math.PI/4);
-      } else if (direction.x === -1) {
-        ctx.arc(mouthX + 2, mouthY, 3, Math.PI*3/4, Math.PI*5/4);
-      } else if (direction.y === 1) {
-        ctx.arc(mouthX, mouthY - 2, 3, Math.PI/4, Math.PI*3/4);
-      } else {
-        ctx.arc(mouthX, mouthY + 2, 3, -Math.PI*3/4, -Math.PI/4);
-      }
-      ctx.stroke();
-      
-      // Forked tongue
-      ctx.strokeStyle = '#ff0055';
-      ctx.lineWidth = 1.5;
-      ctx.shadowColor = '#ff0055';
-      ctx.shadowBlur = 5;
-      
-      if (direction.x !== 0) {
-        ctx.beginPath();
-        ctx.moveTo(mouthX, mouthY);
-        ctx.lineTo(tongueX, tongueY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(tongueX, tongueY);
-        ctx.lineTo(tongueX + (direction.x * 2), tongueY - 2);
-        ctx.moveTo(tongueX, tongueY);
-        ctx.lineTo(tongueX + (direction.x * 2), tongueY + 2);
-        ctx.stroke();
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(mouthX, mouthY);
-        ctx.lineTo(tongueX, tongueY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(tongueX, tongueY);
-        ctx.lineTo(tongueX - 2, tongueY + (direction.y * 2));
-        ctx.moveTo(tongueX, tongueY);
-        ctx.lineTo(tongueX + 2, tongueY + (direction.y * 2));
-        ctx.stroke();
-      }
-      
     } else {
-      // PREMIUM BODY DESIGN
-      // Outer glow
+      // Body design
       ctx.shadowColor = `rgba(0, 255, 65, ${0.3 * fadeRatio})`;
       ctx.shadowBlur = 20 * fadeRatio;
       ctx.fillStyle = `rgba(0, 255, 65, ${0.15 * fadeRatio})`;
-      ctx.beginPath();
-      ctx.roundRect(x - 1, y - 1, 22, 22, 7);
-      ctx.fill();
+      ctx.fillRect(x - 1, y - 1, 22, 22);
       
-      // Main body with gradient
       const bodyGrad = ctx.createRadialGradient(x + 10, y + 10, 2, x + 10, y + 10, 12);
       bodyGrad.addColorStop(0, `rgba(0, 255, 65, ${fadeRatio})`);
       bodyGrad.addColorStop(0.7, `rgba(0, 200, 50, ${fadeRatio * 0.8})`);
       bodyGrad.addColorStop(1, `rgba(0, 150, 35, ${fadeRatio * 0.6})`);
       ctx.fillStyle = bodyGrad;
       ctx.shadowBlur = 15 * fadeRatio;
-      ctx.beginPath();
-      ctx.roundRect(x + 2, y + 2, 16, 16, 6);
-      ctx.fill();
+      ctx.fillRect(x + 2, y + 2, 16, 16);
       
-      // Highlight
       ctx.shadowBlur = 0;
       const bodyHighlight = ctx.createRadialGradient(x + 6, y + 6, 0, x + 8, y + 8, 6);
       bodyHighlight.addColorStop(0, `rgba(255, 255, 255, ${0.3 * fadeRatio})`);
@@ -583,29 +488,24 @@ function draw() {
       ctx.arc(x + 7, y + 7, 5, 0, Math.PI * 2);
       ctx.fill();
       
-      // Scale pattern
       ctx.fillStyle = `rgba(0, 0, 0, ${0.2 * fadeRatio})`;
       ctx.beginPath();
       ctx.arc(x + 10, y + 10, 3, 0, Math.PI * 2);
       ctx.fill();
       
-      // Border accent
       ctx.strokeStyle = `rgba(0, 255, 100, ${0.4 * fadeRatio})`;
       ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(x + 3, y + 3, 14, 14, 5);
-      ctx.stroke();
+      ctx.strokeRect(x + 3, y + 3, 14, 14);
     }
     
     ctx.restore();
   }
   
-  // PREMIUM FOOD/APPLE
+  // Draw food (apple)
   ctx.save();
   const fx = food.x * 20;
   const fy = food.y * 20;
   
-  // Outer glow pulse
   ctx.shadowColor = '#ff0000';
   ctx.shadowBlur = 40;
   ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
@@ -613,7 +513,6 @@ function draw() {
   ctx.arc(fx + 10, fy + 12, 12, 0, Math.PI * 2);
   ctx.fill();
   
-  // Main apple body
   const appleGrad = ctx.createRadialGradient(fx + 7, fy + 9, 2, fx + 10, fy + 12, 10);
   appleGrad.addColorStop(0, '#ff6666');
   appleGrad.addColorStop(0.4, '#ff3333');
@@ -625,7 +524,6 @@ function draw() {
   ctx.arc(fx + 10, fy + 12, 8.5, 0, Math.PI * 2);
   ctx.fill();
   
-  // Apple shine
   ctx.shadowBlur = 0;
   const shineGrad = ctx.createRadialGradient(fx + 6, fy + 8, 0, fx + 7, fy + 9, 5);
   shineGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
@@ -636,7 +534,7 @@ function draw() {
   ctx.arc(fx + 6.5, fy + 8.5, 4, 0, Math.PI * 2);
   ctx.fill();
   
-  // Stem with gradient
+  // Stem
   const stemGrad = ctx.createLinearGradient(fx + 9, fy + 3, fx + 11, fy + 7);
   stemGrad.addColorStop(0, '#a0522d');
   stemGrad.addColorStop(1, '#654321');
@@ -644,43 +542,15 @@ function draw() {
   ctx.fillRect(fx + 9, fy + 3, 2.5, 5);
   
   // Leaf
-  const leafGrad = ctx.createLinearGradient(fx + 11, fy + 3, fx + 16, fy + 7);
-  leafGrad.addColorStop(0, '#00ff00');
-  leafGrad.addColorStop(0.5, '#00dd00');
-  leafGrad.addColorStop(1, '#00aa00');
+  const leafGrad = ctx.createLinearGradient(fx + 11, fy + 3, fx + 16, fy + 8);
+  leafGrad.addColorStop(0, '#228b22');
+  leafGrad.addColorStop(1, '#006400');
   ctx.fillStyle = leafGrad;
-  ctx.shadowColor = '#00ff00';
-  ctx.shadowBlur = 8;
   ctx.beginPath();
-  ctx.ellipse(fx + 13.5, fy + 5, 3.5, 2.5, Math.PI / 4, 0, Math.PI * 2);
+  ctx.ellipse(fx + 13.5, fy + 5, 3, 2, -Math.PI / 4, 0, Math.PI * 2);
   ctx.fill();
   
-  // Leaf vein
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = 'rgba(0, 150, 0, 0.6)';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.moveTo(fx + 12, fy + 5);
-  ctx.lineTo(fx + 15, fy + 6);
-  ctx.stroke();
-  
   ctx.restore();
-}
-
-// Polyfill
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-    if (w < 2 * r) r = w/2;
-    if (h < 2 * r) r = h/2;
-    this.beginPath();
-    this.moveTo(x+r, y);
-    this.arcTo(x+w, y, x+w, y+h, r);
-    this.arcTo(x+w, y+h, x, y+h, r);
-    this.arcTo(x, y+h, x, y, r);
-    this.arcTo(x+w, y, x+w, y, r);
-    this.closePath();
-    return this;
-  }
 }
 </script>
 </body>
