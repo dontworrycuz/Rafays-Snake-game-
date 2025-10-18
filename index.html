@@ -68,8 +68,40 @@
     position: relative;
     width: 600px;
     height: 600px;
-    border: 4px solid #555;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 30px solid #1a1a1a;
+    box-shadow: 
+      0 0 50px rgba(0,0,0,0.9),
+      inset 0 0 40px rgba(0,0,0,0.6),
+      0 0 100px rgba(0,255,65,0.3);
+    background: #000;
+    overflow: hidden;
+  }
+
+  #gameContainer::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    right: -30px;
+    bottom: -30px;
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        #2d5016 0px,
+        #3a6b1f 8px,
+        #1a3d0a 16px,
+        #2d5016 24px,
+        #4a7c25 32px,
+        #2d5016 40px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.3) 0px,
+        transparent 4px,
+        rgba(0,0,0,0.3) 8px
+      );
+    z-index: -1;
+    pointer-events: none;
   }
 
   #score {
@@ -288,133 +320,253 @@ function update() {
 }
 
 function draw() {
-  ctx.fillStyle = '#111';
+  // Dark background with animated scanlines
+  const bgGradient = ctx.createRadialGradient(300, 300, 50, 300, 300, 400);
+  bgGradient.addColorStop(0, '#0d0d0d');
+  bgGradient.addColorStop(1, '#000000');
+  ctx.fillStyle = bgGradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Draw snake with realistic texture
-  for (let i=0; i<snake.length; i++) {
+  // Subtle grid with glow
+  ctx.strokeStyle = 'rgba(0, 255, 65, 0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= canvas.width; i += 20) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
+    ctx.stroke();
+  }
+  for (let i = 0; i <= canvas.height; i += 20) {
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
+    ctx.stroke();
+  }
+  
+  // Draw snake
+  for (let i = snake.length - 1; i >= 0; i--) {
     const s = snake[i];
     const x = s.x * 20;
     const y = s.y * 20;
+    const isHead = i === 0;
     
     ctx.save();
     
-    // Main body color - different for head
-    if (i === 0) {
-      // Head - brighter green with gradient
-      const gradient = ctx.createRadialGradient(x + 10, y + 10, 2, x + 10, y + 10, 10);
-      gradient.addColorStop(0, '#0f0');
-      gradient.addColorStop(1, '#0a0');
-      ctx.fillStyle = gradient;
-    } else {
-      // Body - darker green with gradient
-      const gradient = ctx.createRadialGradient(x + 10, y + 10, 2, x + 10, y + 10, 10);
-      gradient.addColorStop(0, '#0c0');
-      gradient.addColorStop(1, '#060');
-      ctx.fillStyle = gradient;
-    }
+    // Calculate fade effect for tail
+    const fadeRatio = 1 - (i / snake.length) * 0.5;
     
-    // Draw main body segment
-    ctx.shadowColor = '#0f0';
-    ctx.shadowBlur = 8;
-    ctx.beginPath();
-    ctx.roundRect(x + 1, y + 1, 18, 18, 5);
-    ctx.fill();
-    
-    // Add scale pattern
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    
-    // Draw overlapping circles to create scale effect
-    for (let row = 0; row < 2; row++) {
-      for (let col = 0; col < 2; col++) {
-        const offsetX = row % 2 === 0 ? 0 : 5;
-        ctx.beginPath();
-        ctx.arc(x + 5 + col * 10 + offsetX, y + 5 + row * 10, 4, 0, Math.PI * 2);
-        ctx.fill();
+    if (isHead) {
+      // PREMIUM HEAD DESIGN
+      // Outer glow layers
+      ctx.shadowColor = '#00ff41';
+      ctx.shadowBlur = 30;
+      ctx.fillStyle = 'rgba(0, 255, 65, 0.3)';
+      ctx.beginPath();
+      ctx.roundRect(x - 2, y - 2, 24, 24, 8);
+      ctx.fill();
+      
+      // Main head gradient
+      const headGrad = ctx.createLinearGradient(x, y, x + 20, y + 20);
+      headGrad.addColorStop(0, '#00ff88');
+      headGrad.addColorStop(0.5, '#00ff41');
+      headGrad.addColorStop(1, '#00dd35');
+      ctx.fillStyle = headGrad;
+      ctx.shadowBlur = 25;
+      ctx.beginPath();
+      ctx.roundRect(x + 1, y + 1, 18, 18, 7);
+      ctx.fill();
+      
+      // Inner highlight layer
+      ctx.shadowBlur = 0;
+      const highlightGrad = ctx.createRadialGradient(x + 6, y + 6, 0, x + 10, y + 10, 12);
+      highlightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+      highlightGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+      highlightGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = highlightGrad;
+      ctx.beginPath();
+      ctx.roundRect(x + 2, y + 2, 16, 16, 6);
+      ctx.fill();
+      
+      // Border accent
+      ctx.strokeStyle = '#00ffaa';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#00ffaa';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.roundRect(x + 2.5, y + 2.5, 15, 15, 6);
+      ctx.stroke();
+      
+      // Scale pattern on head
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      for (let sy = 0; sy < 2; sy++) {
+        for (let sx = 0; sx < 2; sx++) {
+          ctx.beginPath();
+          ctx.arc(x + 6 + sx * 8, y + 6 + sy * 8, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
-    }
-    
-    // Add highlights for 3D effect
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.beginPath();
-    ctx.arc(x + 7, y + 7, 3, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // If head, add eyes
-    if (i === 0) {
-      // Determine eye position based on direction
-      let eyeX1 = x + 8, eyeY1 = y + 8;
-      let eyeX2 = x + 12, eyeY2 = y + 8;
+      
+      // Eye positioning
+      let eyeX1, eyeY1, eyeX2, eyeY2, eyeSize = 3.5;
       
       if (direction.x === 1) { // Right
-        eyeX1 = x + 14; eyeY1 = y + 7;
-        eyeX2 = x + 14; eyeY2 = y + 13;
+        eyeX1 = x + 15; eyeY1 = y + 7;
+        eyeX2 = x + 15; eyeY2 = y + 13;
       } else if (direction.x === -1) { // Left
-        eyeX1 = x + 6; eyeY1 = y + 7;
-        eyeX2 = x + 6; eyeY2 = y + 13;
+        eyeX1 = x + 5; eyeY1 = y + 7;
+        eyeX2 = x + 5; eyeY2 = y + 13;
       } else if (direction.y === 1) { // Down
-        eyeX1 = x + 7; eyeY1 = y + 14;
-        eyeX2 = x + 13; eyeY2 = y + 14;
-      } else if (direction.y === -1) { // Up
-        eyeX1 = x + 7; eyeY1 = y + 6;
-        eyeX2 = x + 13; eyeY2 = y + 6;
+        eyeX1 = x + 7; eyeY1 = y + 15;
+        eyeX2 = x + 13; eyeY2 = y + 15;
+      } else { // Up
+        eyeX1 = x + 7; eyeY1 = y + 5;
+        eyeX2 = x + 13; eyeY2 = y + 5;
       }
       
-      // Draw eyes
-      ctx.fillStyle = '#fff';
+      // Eye whites with glow
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.arc(eyeX1, eyeY1, 2, 0, Math.PI * 2);
+      ctx.arc(eyeX1, eyeY1, eyeSize, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(eyeX2, eyeY2, 2, 0, Math.PI * 2);
+      ctx.arc(eyeX2, eyeY2, eyeSize, 0, Math.PI * 2);
       ctx.fill();
       
-      // Draw pupils
-      ctx.fillStyle = '#000';
+      // Eye shine
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.beginPath();
-      ctx.arc(eyeX1, eyeY1, 1, 0, Math.PI * 2);
+      ctx.arc(eyeX1 - 1, eyeY1 - 1, 1.2, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(eyeX2, eyeY2, 1, 0, Math.PI * 2);
+      ctx.arc(eyeX2 - 1, eyeY2 - 1, 1.2, 0, Math.PI * 2);
       ctx.fill();
+      
+      // Pupils with red glow
+      ctx.fillStyle = '#ff0000';
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(eyeX1, eyeY1, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(eyeX2, eyeY2, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      
+    } else {
+      // PREMIUM BODY DESIGN
+      // Outer glow
+      ctx.shadowColor = `rgba(0, 255, 65, ${0.3 * fadeRatio})`;
+      ctx.shadowBlur = 20 * fadeRatio;
+      ctx.fillStyle = `rgba(0, 255, 65, ${0.15 * fadeRatio})`;
+      ctx.beginPath();
+      ctx.roundRect(x - 1, y - 1, 22, 22, 7);
+      ctx.fill();
+      
+      // Main body with gradient
+      const bodyGrad = ctx.createRadialGradient(x + 10, y + 10, 2, x + 10, y + 10, 12);
+      bodyGrad.addColorStop(0, `rgba(0, 255, 65, ${fadeRatio})`);
+      bodyGrad.addColorStop(0.7, `rgba(0, 200, 50, ${fadeRatio * 0.8})`);
+      bodyGrad.addColorStop(1, `rgba(0, 150, 35, ${fadeRatio * 0.6})`);
+      ctx.fillStyle = bodyGrad;
+      ctx.shadowBlur = 15 * fadeRatio;
+      ctx.beginPath();
+      ctx.roundRect(x + 2, y + 2, 16, 16, 6);
+      ctx.fill();
+      
+      // Highlight
+      ctx.shadowBlur = 0;
+      const bodyHighlight = ctx.createRadialGradient(x + 6, y + 6, 0, x + 8, y + 8, 6);
+      bodyHighlight.addColorStop(0, `rgba(255, 255, 255, ${0.3 * fadeRatio})`);
+      bodyHighlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = bodyHighlight;
+      ctx.beginPath();
+      ctx.arc(x + 7, y + 7, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Scale pattern
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.2 * fadeRatio})`;
+      ctx.beginPath();
+      ctx.arc(x + 10, y + 10, 3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Border accent
+      ctx.strokeStyle = `rgba(0, 255, 100, ${0.4 * fadeRatio})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(x + 3, y + 3, 14, 14, 5);
+      ctx.stroke();
     }
     
     ctx.restore();
   }
   
-  // Draw food as apple
+  // PREMIUM FOOD/APPLE
   ctx.save();
   const fx = food.x * 20;
   const fy = food.y * 20;
   
-  // Apple body
-  const appleGradient = ctx.createRadialGradient(fx + 10, fy + 12, 3, fx + 10, fy + 12, 9);
-  appleGradient.addColorStop(0, '#ff4444');
-  appleGradient.addColorStop(1, '#cc0000');
-  ctx.fillStyle = appleGradient;
-  ctx.shadowColor = '#f00';
-  ctx.shadowBlur = 10;
+  // Outer glow pulse
+  ctx.shadowColor = '#ff0000';
+  ctx.shadowBlur = 40;
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
   ctx.beginPath();
-  ctx.arc(fx + 10, fy + 12, 8, 0, Math.PI * 2);
+  ctx.arc(fx + 10, fy + 12, 12, 0, Math.PI * 2);
   ctx.fill();
   
-  // Apple highlight
+  // Main apple body
+  const appleGrad = ctx.createRadialGradient(fx + 7, fy + 9, 2, fx + 10, fy + 12, 10);
+  appleGrad.addColorStop(0, '#ff6666');
+  appleGrad.addColorStop(0.4, '#ff3333');
+  appleGrad.addColorStop(0.8, '#ee0000');
+  appleGrad.addColorStop(1, '#aa0000');
+  ctx.fillStyle = appleGrad;
+  ctx.shadowBlur = 25;
+  ctx.beginPath();
+  ctx.arc(fx + 10, fy + 12, 8.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Apple shine
   ctx.shadowBlur = 0;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  const shineGrad = ctx.createRadialGradient(fx + 6, fy + 8, 0, fx + 7, fy + 9, 5);
+  shineGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+  shineGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
+  shineGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = shineGrad;
   ctx.beginPath();
-  ctx.arc(fx + 8, fy + 10, 3, 0, Math.PI * 2);
+  ctx.arc(fx + 6.5, fy + 8.5, 4, 0, Math.PI * 2);
   ctx.fill();
   
-  // Apple stem
-  ctx.fillStyle = '#654321';
-  ctx.fillRect(fx + 9, fy + 3, 2, 5);
+  // Stem with gradient
+  const stemGrad = ctx.createLinearGradient(fx + 9, fy + 3, fx + 11, fy + 7);
+  stemGrad.addColorStop(0, '#a0522d');
+  stemGrad.addColorStop(1, '#654321');
+  ctx.fillStyle = stemGrad;
+  ctx.fillRect(fx + 9, fy + 3, 2.5, 5);
   
   // Leaf
-  ctx.fillStyle = '#0a0';
+  const leafGrad = ctx.createLinearGradient(fx + 11, fy + 3, fx + 16, fy + 7);
+  leafGrad.addColorStop(0, '#00ff00');
+  leafGrad.addColorStop(0.5, '#00dd00');
+  leafGrad.addColorStop(1, '#00aa00');
+  ctx.fillStyle = leafGrad;
+  ctx.shadowColor = '#00ff00';
+  ctx.shadowBlur = 8;
   ctx.beginPath();
-  ctx.ellipse(fx + 13, fy + 5, 3, 2, Math.PI / 4, 0, Math.PI * 2);
+  ctx.ellipse(fx + 13.5, fy + 5, 3.5, 2.5, Math.PI / 4, 0, Math.PI * 2);
   ctx.fill();
+  
+  // Leaf vein
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(0, 150, 0, 0.6)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(fx + 12, fy + 5);
+  ctx.lineTo(fx + 15, fy + 6);
+  ctx.stroke();
   
   ctx.restore();
 }
