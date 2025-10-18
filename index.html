@@ -41,14 +41,40 @@
     opacity: 0.5;
   }
   
-  @keyframes snakeMove1 {
-    0% { transform: translateX(-200px) translateY(-200px); }
-    100% { transform: translateX(100vw) translateY(100vh); }
+@keyframes snakeMove1 {
+    0% { 
+      transform: translateX(-200px) translateY(-200px) scaleX(1); 
+    }
+    25% { 
+      transform: translateX(25vw) translateY(25vh) scaleX(1.1) scaleY(0.95); 
+    }
+    50% { 
+      transform: translateX(50vw) translateY(50vh) scaleX(0.9) scaleY(1.05); 
+    }
+    75% { 
+      transform: translateX(75vw) translateY(75vh) scaleX(1.1) scaleY(0.95); 
+    }
+    100% { 
+      transform: translateX(100vw) translateY(100vh) scaleX(1); 
+    }
   }
   
   @keyframes snakeMove2 {
-    0% { transform: translateX(100vw) translateY(-200px) rotate(180deg); }
-    100% { transform: translateX(-200px) translateY(100vh) rotate(180deg); }
+    0% { 
+      transform: translateX(100vw) translateY(-200px) rotate(180deg) scaleX(1); 
+    }
+    25% { 
+      transform: translateX(75vw) translateY(25vh) rotate(180deg) scaleX(0.9) scaleY(1.05); 
+    }
+    50% { 
+      transform: translateX(50vw) translateY(50vh) rotate(180deg) scaleX(1.1) scaleY(0.95); 
+    }
+    75% { 
+      transform: translateX(25vw) translateY(75vh) rotate(180deg) scaleX(0.9) scaleY(1.05); 
+    }
+    100% { 
+      transform: translateX(-200px) translateY(100vh) rotate(180deg) scaleX(1); 
+    }
   }
 
   /* Main menu styles - futuristic bluish */
