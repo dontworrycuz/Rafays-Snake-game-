@@ -1,3 +1,6 @@
+Certainly! Here's your complete HTML code with the enhanced border style for `#gameContainer` integrated into your existing code:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,14 +65,30 @@
     display: flex;
   }
 
-  /* Game container styles */
+  /* Updated game container styles with enhanced border and glow effect */
   #gameContainer {
     display: none;
     position: relative;
     width: 600px;
     height: 600px;
-    border: 4px solid #555;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border-radius: 12px;
+    border: 4px solid transparent; /* transparent border for glow effect */
+    background: linear-gradient(135deg, #00ffff, #007fff);
+    padding: 4px; /* space for glow */
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), inset 0 0 10px rgba(0, 255, 255, 0.5);
+    background-clip: padding-box, border-box;
+    /* Add a shimmering glow animation */
+    animation: glow 2s infinite alternate;
+  }
+
+  /* Keyframes for glow animation */
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), inset 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+    to {
+      box-shadow: 0 0 40px rgba(0, 255, 255, 1), inset 0 0 20px rgba(0, 255, 255, 0.7);
+    }
   }
 
   #score {
@@ -313,3 +332,6 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 </script>
 </body>
 </html>
+```
+
+Feel free to copy this entire code into your project. The `#gameContainer` now has a glowing, animated border that matches your futuristic theme. Let me know if you'd like any further adjustments!
