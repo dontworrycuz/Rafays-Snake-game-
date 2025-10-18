@@ -12,6 +12,43 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Animated snake patterns in background */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  body::before {
+    background-image: 
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M20,100 Q50,80 80,100 T140,100 T200,100" stroke="rgba(0,0,0,0.15)" stroke-width="25" fill="none" stroke-linecap="round"/><circle cx="25" cy="100" r="15" fill="rgba(0,0,0,0.15)"/><ellipse cx="18" cy="95" rx="3" ry="5" fill="rgba(255,255,255,0.3)"/></svg>');
+    animation: snakeMove1 20s linear infinite;
+    opacity: 0.6;
+  }
+  
+  body::after {
+    background-image: 
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M0,100 Q30,120 60,100 T120,100 T180,100" stroke="rgba(0,0,0,0.12)" stroke-width="22" fill="none" stroke-linecap="round"/><circle cx="185" cy="100" r="13" fill="rgba(0,0,0,0.12)"/><ellipse cx="190" cy="96" rx="3" ry="4" fill="rgba(255,255,255,0.25)"/></svg>');
+    animation: snakeMove2 25s linear infinite reverse;
+    opacity: 0.5;
+  }
+  
+  @keyframes snakeMove1 {
+    0% { transform: translateX(-200px) translateY(-200px); }
+    100% { transform: translateX(100vw) translateY(100vh); }
+  }
+  
+  @keyframes snakeMove2 {
+    0% { transform: translateX(100vw) translateY(-200px) rotate(180deg); }
+    100% { transform: translateX(-200px) translateY(100vh) rotate(180deg); }
   }
 
   /* Main menu styles - futuristic bluish */
@@ -127,8 +164,8 @@
   /* Style for the small fixed music toggle button at bottom right */
   #musicToggle {
     position: fixed;
-    bottom: 20px; /* moved from top to bottom */
-    right: 20px; /* moved to bottom right corner */
+    bottom: 20px;
+    right: 20px;
     width: 60px;
     height: 30px;
     font-size: 0.8em;
@@ -140,7 +177,7 @@
     color: #fff;
     cursor: pointer;
     box-shadow: 0 0 10px rgba(0,255,255,0.7);
-    z-index: 999; /* stay on top */
+    z-index: 999;
     transition: all 0.3s ease;
   }
 
@@ -184,8 +221,8 @@ const scoreDiv = document.getElementById('score');
 const music = document.getElementById('backgroundMusic');
 const musicToggleBtn = document.getElementById('musicToggle');
 
-let gameSpeed = 100; // default
-let mapType = 'normal'; // default
+let gameSpeed = 100;
+let mapType = 'normal';
 let snake, direction, food, score, gameOver, gameInterval;
 
 // Set background based on map type with snake patterns
@@ -237,11 +274,6 @@ musicToggleBtn.onclick = () => {
       music.pause();
     }
   }
-};
-
-// For browsers that block autoplay, user must click toggle to start music
-window.onload = () => {
-  // Wait for user interaction
 };
 
 document.addEventListener('keydown', changeDirection);
@@ -407,54 +439,92 @@ function draw() {
         }
       }
       
-      // Eye positioning
-      let eyeX1, eyeY1, eyeX2, eyeY2, eyeSize = 3.5;
+      // Snake head features based on direction
+      let mouthX, mouthY, tongueX, tongueY, eyeX, eyeY;
       
       if (direction.x === 1) { // Right
-        eyeX1 = x + 15; eyeY1 = y + 7;
-        eyeX2 = x + 15; eyeY2 = y + 13;
+        eyeX = x + 13; eyeY = y + 8;
+        mouthX = x + 16; mouthY = y + 12;
+        tongueX = x + 19; tongueY = y + 12;
       } else if (direction.x === -1) { // Left
-        eyeX1 = x + 5; eyeY1 = y + 7;
-        eyeX2 = x + 5; eyeY2 = y + 13;
+        eyeX = x + 7; eyeY = y + 8;
+        mouthX = x + 4; mouthY = y + 12;
+        tongueX = x + 1; tongueY = y + 12;
       } else if (direction.y === 1) { // Down
-        eyeX1 = x + 7; eyeY1 = y + 15;
-        eyeX2 = x + 13; eyeY2 = y + 15;
+        eyeX = x + 12; eyeY = y + 13;
+        mouthX = x + 8; mouthY = y + 16;
+        tongueX = x + 8; tongueY = y + 19;
       } else { // Up
-        eyeX1 = x + 7; eyeY1 = y + 5;
-        eyeX2 = x + 13; eyeY2 = y + 5;
+        eyeX = x + 12; eyeY = y + 7;
+        mouthX = x + 8; mouthY = y + 4;
+        tongueX = x + 8; tongueY = y + 1;
       }
       
-      // Eye whites with glow
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowColor = '#ffffff';
-      ctx.shadowBlur = 8;
+      // Single eye (more snake-like)
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffff00';
       ctx.beginPath();
-      ctx.arc(eyeX1, eyeY1, eyeSize, 0, Math.PI * 2);
+      ctx.arc(eyeX, eyeY, 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.beginPath();
-      ctx.arc(eyeX2, eyeY2, eyeSize, 0, Math.PI * 2);
-      ctx.fill();
+      
+      // Slit pupil
+      ctx.fillStyle = '#000000';
+      if (direction.y !== 0) {
+        ctx.fillRect(eyeX - 0.8, eyeY - 4, 1.6, 8);
+      } else {
+        ctx.fillRect(eyeX - 4, eyeY - 0.8, 8, 1.6);
+      }
       
       // Eye shine
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.beginPath();
-      ctx.arc(eyeX1 - 1, eyeY1 - 1, 1.2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(eyeX2 - 1, eyeY2 - 1, 1.2, 0, Math.PI * 2);
+      ctx.arc(eyeX - 1, eyeY - 1, 1.5, 0, Math.PI * 2);
       ctx.fill();
       
-      // Pupils with red glow
-      ctx.fillStyle = '#ff0000';
-      ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = 6;
+      // Mouth
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(eyeX1, eyeY1, 1.8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(eyeX2, eyeY2, 1.8, 0, Math.PI * 2);
-      ctx.fill();
+      if (direction.x === 1) {
+        ctx.arc(mouthX - 2, mouthY, 3, -Math.PI/4, Math.PI/4);
+      } else if (direction.x === -1) {
+        ctx.arc(mouthX + 2, mouthY, 3, Math.PI*3/4, Math.PI*5/4);
+      } else if (direction.y === 1) {
+        ctx.arc(mouthX, mouthY - 2, 3, Math.PI/4, Math.PI*3/4);
+      } else {
+        ctx.arc(mouthX, mouthY + 2, 3, -Math.PI*3/4, -Math.PI/4);
+      }
+      ctx.stroke();
+      
+      // Forked tongue
+      ctx.strokeStyle = '#ff0055';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#ff0055';
+      ctx.shadowBlur = 5;
+      
+      if (direction.x !== 0) {
+        ctx.beginPath();
+        ctx.moveTo(mouthX, mouthY);
+        ctx.lineTo(tongueX, tongueY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(tongueX, tongueY);
+        ctx.lineTo(tongueX + (direction.x * 2), tongueY - 2);
+        ctx.moveTo(tongueX, tongueY);
+        ctx.lineTo(tongueX + (direction.x * 2), tongueY + 2);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(mouthX, mouthY);
+        ctx.lineTo(tongueX, tongueY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(tongueX, tongueY);
+        ctx.lineTo(tongueX - 2, tongueY + (direction.y * 2));
+        ctx.moveTo(tongueX, tongueY);
+        ctx.lineTo(tongueX + 2, tongueY + (direction.y * 2));
+        ctx.stroke();
+      }
       
     } else {
       // PREMIUM BODY DESIGN
