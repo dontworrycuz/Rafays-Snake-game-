@@ -246,6 +246,9 @@
   <canvas id="gameCanvas" width="600" height="600"></canvas>
 </div>
 
+<!-- Restart Button added here -->
+<button id="restartBtn" style="display:none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px 40px; font-size: 1.5em; border: none; border-radius: 10px; background: linear-gradient(135deg, #00ffff, #007fff); color: #fff; cursor: pointer; box-shadow: 0 0 20px rgba(0,255,255,0.7); z-index: 1000;">Restart</button>
+
 <script>
 const welcomeScreen = document.getElementById('welcomeScreen');
 const startButtons = document.querySelectorAll('.map-button');
@@ -255,6 +258,9 @@ const ctx = canvas.getContext('2d');
 const scoreDiv = document.getElementById('score');
 const music = document.getElementById('backgroundMusic');
 const musicToggleBtn = document.getElementById('musicToggle');
+
+// Restart button element
+const restartBtn = document.getElementById('restartBtn');
 
 let gameSpeed = 100;
 let mapType = 'normal';
@@ -311,8 +317,6 @@ musicToggleBtn.onclick = () => {
   }
 };
 
-document.addEventListener('keydown', changeDirection);
-
 function spawnFood() {
   let newFood;
   do {
@@ -331,12 +335,13 @@ function startGame() {
   direction = {x: 1, y: 0};
   food = spawnFood();
   score = 0;
-  scoreDiv.innerText = 'Score: 0';
+  scoreDiv.innerText = 'Score: ' + score;
   gameOver = false;
   clearInterval(gameInterval);
   gameInterval = setInterval(update, gameSpeed);
 }
 
+// Change direction based on arrow keys
 function changeDirection(e) {
   const key = e.key;
   if (key === 'ArrowUp' && direction.y !== 1) {
@@ -350,10 +355,22 @@ function changeDirection(e) {
   }
 }
 
+// Handle game over
+function endGame() {
+  alert('Game Over! Your score: ' + score);
+  clearInterval(gameInterval);
+  restartBtn.style.display = 'block'; // Show restart button
+}
+
+// Restart button handler
+restartBtn.onclick = () => {
+  restartBtn.style.display = 'none'; // Hide restart button
+  startGame();
+};
+
 function update() {
   if (gameOver) {
-    alert('Game Over! Your score: ' + score);
-    clearInterval(gameInterval);
+    endGame();
     return;
   }
 
@@ -369,8 +386,7 @@ function update() {
   }
 
   if (gameOver) {
-    alert('Game Over! Your score: ' + score);
-    clearInterval(gameInterval);
+    endGame();
     return;
   }
 
